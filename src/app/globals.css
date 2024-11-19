@@ -1,0 +1,93 @@
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --background-ligh-blue: #f0f5fa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--background-ligh-blue);
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  font-family: sans-serif;
+  color: #3D3D4E  ;
+}
+
+
+
+/* main section homepage*/
+.text-truncate-2-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+@media (max-width: 576px) {
+  .custom-hide-sm {
+    display: none;
+  }
+}
+
+@media (min-width: 577px) {
+  .custom-hide-sm {
+    display: inline-block;
+  }
+}
+
+/* login page */
+
+.navbar-toggler-icon {
+  filter: invert(1) brightness(100%);
+}
+
+
+.nav-link {
+  position: relative;
+}
+
+.nav-link.active-link::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: white;
+}
+
+.cus-border-bottom {
+  border-top: 1px solid rgb(231, 200, 200);
+}
+
+select.form-select option {
+  color: white;
+  background-color: black;
+}
+
+/* main section */
+.form-select option {
+  /* Customize option text color */
+  color: #333;
+
+  /* Customize option background color */
+  background-color: #f8f9fa;
+
+  /* Add padding for better spacing */
+  padding: 8px;
+  font-size: 12px;
+  font-weight: normal;
+  text-align: left;
+}
+.small-text {
+  font-size: 0.75rem; /* Adjust as needed */
+}
