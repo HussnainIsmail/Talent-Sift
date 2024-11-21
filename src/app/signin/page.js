@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import axios from '../../lib/axios';
 import '../globals.css';
+import NavBar from '@/sections/NavBar'
 
 export default function page() {
   const [email, setEmail] = useState('');
@@ -17,10 +18,10 @@ export default function page() {
 
     try {
       const response = await axios.post('/login', { email, password });
-      localStorage.setItem('token', response.data.token); 
+      localStorage.setItem('token', response.data.token);
       alert('Login successful!');
       setLoading(false);
-      window.location.href = '/JobSeeker/JobDetails'; 
+      window.location.href = '/JobSeeker/JobDetails';
     } catch (error) {
       setLoading(false);
 
@@ -34,6 +35,7 @@ export default function page() {
 
   return (
     <div>
+      <NavBar />
       <section className="bg-light p-3 p-md-4 p-xl-5">
         <div className="container">
           <div className="row justify-content-center">
@@ -133,5 +135,5 @@ export default function page() {
       </section>
     </div>
   );
-  
+
 }
