@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import NavBar from '@/sections/NavBar'
 
+// tetsing git
 export default function Page() {
   const [formData, setFormData] = useState({
     name: '',
@@ -71,6 +73,7 @@ export default function Page() {
 
   return (
     <div style={{ backgroundColor: "#f8f9fa" }}>
+      <NavBar />
       <section className="bg-light p-3 p-md-4 p-xl-5">
         <div className="container">
           <div className="row justify-content-center">
