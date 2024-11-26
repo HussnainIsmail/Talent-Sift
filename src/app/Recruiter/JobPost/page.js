@@ -12,7 +12,10 @@ export default function Page() {
         jobType: [],
         workLocation: [],
         subscribe: 0,
-        image: null
+        image: null,
+        minSalary: '',
+        maxSalary: '',
+        jobLevel: []
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,10 +28,9 @@ export default function Page() {
             if (name === 'subscribe') {
                 setFormData({
                     ...formData,
-                    [name]: checked ? 1 : 0 
+                    [name]: checked ? 1 : 0
                 });
-            } else if (name === 'jobType' || name === 'workLocation') {
-                // Handle job type and work location arrays
+            } else if (name === 'jobType' || name === 'workLocation' || name === 'jobLevel') {
                 setFormData({
                     ...formData,
                     [name]: checked
@@ -37,10 +39,16 @@ export default function Page() {
                 });
             }
         } else if (type === 'file') {
-            // Handle file upload
             setFormData({
                 ...formData,
                 image: files[0]
+            });
+        } else if (name === 'minSalary' || name === 'maxSalary') {
+            // Allow only numeric values
+            const sanitizedValue = value.replace(/[^0-9]/g, '');
+            setFormData({
+                ...formData,
+                [name]: sanitizedValue
             });
         } else {
             setFormData({
@@ -50,25 +58,19 @@ export default function Page() {
         }
     };
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-
-    // console.log('Job Title:', formData.jobtitle);
-    // console.log('Email:', formData.email);
-    // console.log('Description:', formData.description);
-    // console.log('Job Type:', formData.jobType.join(', '));
-    // console.log('Work Location:', formData.workLocation.join(', '));
-    // console.log('Subscribe to Newsletter:', formData.subscribe);
-    // console.log('Uploaded Image:', formData.image ? formData.image.name : 'No image uploaded');
         const formDataToSend = new FormData();
         formDataToSend.append('jobtitle', formData.jobtitle);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('description', formData.description);
 
-        // Append array values for jobType and workLocation
+        // Append array values for jobType, workLocation, and jobLevel
         formData.jobType.forEach(job => formDataToSend.append('jobType[]', job));
         formData.workLocation.forEach(location => formDataToSend.append('workLocation[]', location));
+        formData.jobLevel.forEach(level => formDataToSend.append('jobLevel[]', level));
 
         // Append file if there is one
         if (formData.image) {
@@ -78,6 +80,10 @@ export default function Page() {
         // Append subscription checkbox
         formDataToSend.append('subscribe', formData.subscribe);
 
+        // Append salary information
+        formDataToSend.append('minSalary', formData.minSalary);
+        formDataToSend.append('maxSalary', formData.maxSalary);
+
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/store', formDataToSend, {
                 headers: {
@@ -86,7 +92,7 @@ export default function Page() {
             });
 
             alert(response.data.message);
-            router.push('/signin');
+            router.push('/');
         } catch (error) {
             console.error('Job Post Failed:', error);
             if (error.response?.data?.errors) {
@@ -98,7 +104,6 @@ export default function Page() {
 
         setIsSubmitting(false);
     };
-
 
     return (
         <div>
@@ -153,6 +158,47 @@ export default function Page() {
                                                             </div>
                                                         </div>
 
+                                                        {/* Minimum Salary Input */}
+                                                        <div className="col-12 col-md-6">
+                                                            <div className="input-group mb-3">
+                                                                <span className="input-group-text">$</span>
+                                                                <div className="form-floating">
+                                                                    <input
+                                                                        type="text"
+                                                                        id="minSalary"
+                                                                        name="minSalary"
+                                                                        className="form-control"
+                                                                        placeholder="Minimum Salary"
+                                                                        value={formData.minSalary}
+                                                                        onChange={handleChange}
+                                                                        required
+                                                                    />
+                                                                    <label htmlFor="minSalary">Min Salary</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Maximum Salary Input */}
+                                                        <div className="col-12 col-md-6">
+                                                            <div className="input-group mb-3">
+                                                                <span className="input-group-text">$</span>
+                                                                <div className="form-floating">
+                                                                    <input
+                                                                        type="text"
+                                                                        id="maxSalary"
+                                                                        name="maxSalary"
+                                                                        className="form-control"
+                                                                        placeholder="Maximum Salary"
+                                                                        value={formData.maxSalary}
+                                                                        onChange={handleChange}
+                                                                        required
+                                                                    />
+                                                                    <label htmlFor="maxSalary">Max Salary</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
                                                         {/* Description Textarea */}
                                                         <div className="col-12">
                                                             <div className="form-floating mb-3">
@@ -172,7 +218,7 @@ export default function Page() {
 
                                                         {/* Job Type Checkbox */}
                                                         <div className="col-12 col-md-6">
-                                                            <label>Job type:</label>
+                                                            <label>Job Type:</label>
                                                             <div className="form-check">
                                                                 <input
                                                                     type="checkbox"
@@ -250,54 +296,55 @@ export default function Page() {
                                                                 />
                                                                 <label htmlFor="on-site" className="form-check-label">On-site</label>
                                                             </div>
+                                                        </div>
+
+                                                        {/* Job Level Checkbox */}
+                                                        <div className="col-12 col-md-6">
+                                                            <label>Job Level:</label>
                                                             <div className="form-check">
                                                                 <input
                                                                     type="checkbox"
-                                                                    name="workLocation"
-                                                                    value="hybrid"
-                                                                    id="hybrid"
+                                                                    name="jobLevel"
+                                                                    value="entry"
+                                                                    id="entry"
                                                                     className="form-check-input"
-                                                                    checked={formData.workLocation.includes('hybrid')}
+                                                                    checked={formData.jobLevel.includes('entry')}
                                                                     onChange={handleChange}
                                                                 />
-                                                                <label htmlFor="hybrid" className="form-check-label">Hybrid</label>
+                                                                <label htmlFor="entry" className="form-check-label">Entry Level</label>
                                                             </div>
-                                                        </div>
-
-                                                        {/* Subscribe Checkbox */}
-                                                        <div className="col-12">
                                                             <div className="form-check">
                                                                 <input
                                                                     type="checkbox"
-                                                                    name="subscribe"
-                                                                    id="subscribe"
+                                                                    name="jobLevel"
+                                                                    value="middle"
+                                                                    id="middle"
                                                                     className="form-check-input"
-                                                                    checked={formData.subscribe}
+                                                                    checked={formData.jobLevel.includes('middle')}
                                                                     onChange={handleChange}
                                                                 />
-                                                                <label htmlFor="subscribe" className="form-check-label">Subscribe to newsletter</label>
+                                                                <label htmlFor="middle" className="form-check-label">Middle Level</label>
                                                             </div>
-                                                        </div>
-
-                                                        {/* Image Upload */}
-                                                        <div className="col-12">
-                                                            <div className="form-floating mb-3">
+                                                            <div className="form-check">
                                                                 <input
-                                                                    type="file"
-                                                                    id="image"
-                                                                    name="image"
-                                                                    className="form-control"
+                                                                    type="checkbox"
+                                                                    name="jobLevel"
+                                                                    value="expert"
+                                                                    id="expert"
+                                                                    className="form-check-input"
+                                                                    checked={formData.jobLevel.includes('expert')}
                                                                     onChange={handleChange}
                                                                 />
-                                                                <label htmlFor="image">Upload Image</label>
+                                                                <label htmlFor="expert" className="form-check-label">Expert</label>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div className="col-12">
-                                                        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                                                            {isSubmitting ? 'Submitting...' : 'Submit'}
-                                                        </button>
+                                                        {/* Submit Button */}
+                                                        <div className="col-12 text-center">
+                                                            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                                                                {isSubmitting ? 'Submitting...' : 'Post Job'}
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </form>
                                             </div>
