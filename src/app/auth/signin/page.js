@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import axios from '../../lib/axios';
-import '../globals.css';
+import axios from '../../../../lib/axios';
+import '../../globals.css';
 import NavBar from '@/sections/NavBar'
 
 export default function page() {
@@ -21,7 +21,7 @@ export default function page() {
       localStorage.setItem('token', response.data.token);
       alert('Login successful!');
       setLoading(false);
-      window.location.href = '/JobSeeker/JobDetails';
+      window.location.href = '/job-seeker/job-details';
     } catch (error) {
       setLoading(false);
 
