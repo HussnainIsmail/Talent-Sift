@@ -21,7 +21,7 @@ export default function page() {
       localStorage.setItem('token', response.data.token);
       alert('Login successful!');
       setLoading(false);
-      window.location.href = '/job-seeker/job-details';
+      window.location.href = '/';
     } catch (error) {
       setLoading(false);
 

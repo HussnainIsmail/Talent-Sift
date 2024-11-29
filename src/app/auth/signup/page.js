@@ -57,7 +57,7 @@ export default function Page() {
 
       // Show success message
       alert(response.data.message); // Or use a toast library for better UX
-      router.push('/signin'); // Redirect to sign-in page
+      router.push('/auth/signin'); // Redirect to sign-in page
     } catch (error) {
       console.error('Registration failed:', error);
       if (error.response?.data?.errors) {

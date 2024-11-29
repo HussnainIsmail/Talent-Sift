@@ -61,7 +61,7 @@ export default function page() {
                                                     </div>
                                                     <Link
                                                         href={{
-                                                            pathname: '/job-seeker/job-details',
+                                                            pathname: '/users/job-details',
                                                             query: {
                                                                 id: job.id,
                                                             },
@@ -192,7 +192,7 @@ export default function page() {
                                         <div className="d-flex mx-3 justify-content-center mt-4">
                                             <Link
                                                 href={{
-                                                    pathname: '/job-seeker/Apply',
+                                                    pathname: '/users/Apply',
                                                     query: { id: id },
                                                 }}
                                                 className="btn py-2 btn-primary rounded-pill w-100 text-center hover-bg-dark hover-text-white"

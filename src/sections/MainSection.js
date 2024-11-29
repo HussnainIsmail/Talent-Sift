@@ -94,7 +94,7 @@ export default function MainSection() {
                                                 </div>
                                                 <Link
                                                     href={{
-                                                        pathname: '/job-seeker/job-details',
+                                                        pathname: '/users/job-details',
                                                         query: {
                                                             id: job.id,
                                                         },
