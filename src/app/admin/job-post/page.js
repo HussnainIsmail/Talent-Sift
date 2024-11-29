@@ -62,6 +62,7 @@ export default function Page() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        console.log(formData);
         const formDataToSend = new FormData();
         formDataToSend.append('jobtitle', formData.jobtitle);
         formDataToSend.append('email', formData.email);

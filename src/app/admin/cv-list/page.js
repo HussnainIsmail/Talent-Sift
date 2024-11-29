@@ -30,7 +30,7 @@ export default function JobApplicationsPage() {
 
     const handleDownload = (filename) => {
         const url = `http://127.0.0.1:8000/storage/${filename}`;
-        window.location.href = url; // Redirect to the file URL for download
+        window.location.href = url; 
     };
 
 
@@ -59,31 +59,31 @@ export default function JobApplicationsPage() {
                     <table className="table table-striped table-bordered" style={{ width: '100%', fontSize: '1.1rem' }}>
                         <thead className="table-dark">
                             <tr>
-                                <th className="text-center">First Name</th>
-                                <th className="text-center">Last Name</th>
-                                <th className="text-center">Email</th>
-                                <th className="text-center">Contact Number</th>
-                                <th className="text-center">CV</th>
-                                <th className="text-center">Actions</th>
+                                <th className="">First Name</th>
+                                <th className="">Last Name</th>
+                                <th className="">Email</th>
+                                <th className="">Contact Number</th>
+                                <th className="">CV</th>
+                                <th className="">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {jobApplications.length > 0 ? (
                                 jobApplications.map((application) => (
                                     <tr key={application.id}>
-                                        <td className="text-center align-middle" style={{ height: '80px' }}>
+                                        <td className=" align-middle" style={{ height: '80px' }}>
                                             {application.first_name}
                                         </td>
-                                        <td className="text-center align-middle" style={{ height: '80px' }}>
+                                        <td className=" align-middle" style={{ height: '80px' }}>
                                             {application.last_name}
                                         </td>
-                                        <td className="text-center align-middle" style={{ height: '80px' }}>
+                                        <td className=" align-middle" style={{ height: '80px' }}>
                                             {application.email}
                                         </td>
-                                        <td className="text-center align-middle" style={{ height: '80px' }}>
+                                        <td className=" align-middle" style={{ height: '80px' }}>
                                             {application.contact_no}
                                         </td>
-                                        <td className="text-center align-middle" style={{ height: '80px' }}>
+                                        <td className=" align-middle" style={{ height: '80px' }}>
                                             {application.cv_path && (
                                                 <button
                                                     className="btn btn-primary btn-sm"
@@ -99,7 +99,7 @@ export default function JobApplicationsPage() {
                                                 <button
                                                     className="btn btn-secondary btn-sm "
                                                     type="button"
-                                                    onClick={(e) => toggleDropdown(e, application.id)} 
+                                                    onClick={(e) => toggleDropdown(e, application.id)}
                                                 >
                                                     &#8942;
                                                 </button>

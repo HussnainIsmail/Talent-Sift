@@ -34,9 +34,9 @@ export default function page() {
   };
 
   return (
-    <div>
+    <div className=''>
       <NavBar />
-      <section className="bg-light p-3 p-md-4 p-xl-5">
+      <section className=" p-3 p-md-4 p-xl-5">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-xxl-11">
