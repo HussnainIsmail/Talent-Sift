@@ -1,6 +1,6 @@
 'use client'
 import NavBar from '@/sections/NavBar';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -24,6 +24,14 @@ export default function Page() {
             [name]: value,
         });
     };
+    
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Access denied. Please log in first.');
+            router.push('/auth/signin');
+        }
+    }, [router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

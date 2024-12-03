@@ -1,8 +1,11 @@
 'use client'
 import NavBar from '@/sections/NavBar';
+import NavAnchor from '@/sections/NavAnchor';
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { NavLink } from 'react-router-dom';
 
 export default function Page() {
     const [name, setName] = useState('');
@@ -34,6 +37,7 @@ export default function Page() {
     return (
         <div className=''  >
             <NavBar />
+            {/* <NavAnchor/> */}
             <section className=" p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">

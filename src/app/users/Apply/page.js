@@ -17,7 +17,7 @@ export default function Page() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const jobId = searchParams.get('id');  // Get the job ID from the URL search parameters
+    const jobId = searchParams.get('id'); 
 
     // Set job_id in formData when jobId exists
     useEffect(() => {
@@ -46,6 +46,13 @@ export default function Page() {
             cv_path: file,
         });
     };
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Access denied. Please log in first.');
+            router.push('/auth/signin');
+        }
+    }, [router]);
 
     // Handle form submission
     const handleSubmit = async (e) => {

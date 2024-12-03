@@ -7,32 +7,57 @@ import { useSearchParams } from 'next/navigation';
 
 export default function Page() {
     const searchParams = useSearchParams();
-    const id = searchParams.get('id');
+    const id = searchParams.get('id'); // Get role ID from URL parameters
     console.log(id);
-    const [name, setName] = useState('');
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [name, setName] = useState(''); // Store role name
+    const [error, setError] = useState(''); // Error state
+    const [successMessage, setSuccessMessage] = useState(''); // Success message state
     const router = useRouter();
+    const [permissions, setPermissions] = useState([]); // All available permissions
+    const [selectedPermissions, setSelectedPermissions] = useState([]); // Permissions selected for the role
 
     useEffect(() => {
-        fetchRole();
+        fetchRoleAndPermissions(); // Fetch role details and permissions on page load
     }, []);
 
-    // Fetch the role details
-    const fetchRole = async () => {
+    // Fetch role details and available permissions
+    const fetchRoleAndPermissions = async () => {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/roles/${id}/edit`);
-            setName(response.data.role.name); // Assuming the response contains `role` with a `name` field
+            // Fetch role details
+            const roleResponse = await axios.get(`http://127.0.0.1:8000/api/roles/${id}/edit`);
+            setName(roleResponse.data.role.name);
+
+            // Fetch all available permissions
+            const permissionsResponse = await axios.get('http://127.0.0.1:8000/api/permissions');
+            setPermissions(permissionsResponse.data.permissions);
+
+            // Set selected permissions based on the role's current permissions
+            const rolePermissions = roleResponse.data.role.permissions.map(permission => permission.id);
+            setSelectedPermissions(rolePermissions);
         } catch (error) {
-            setError('Failed to fetch role details.');
+            setError('Failed to fetch role details or permissions.');
         }
     };
 
+    // Handle checkbox change for permissions
+    const handlePermissionChange = (e) => {
+        const permissionId = parseInt(e.target.value);
+        if (e.target.checked) {
+            setSelectedPermissions([...selectedPermissions, permissionId]);
+        } else {
+            setSelectedPermissions(selectedPermissions.filter(id => id !== permissionId));
+        }
+    };
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await axios.put(`http://127.0.0.1:8000/api/roles/${id}`, { name });
+            const response = await axios.put(`http://127.0.0.1:8000/api/roles/${id}`, { 
+                name, 
+                permissions: selectedPermissions 
+            });
             setSuccessMessage(response.data.message);
             setError('');
             router.push('/super-admin/roles-list'); // Redirect to roles list after update
@@ -78,6 +103,29 @@ export default function Page() {
                                                                     required
                                                                 />
                                                                 <label htmlFor="name">Role Name</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="col-12">
+                                                            <h4>Permissions</h4>
+                                                            <div className="row">
+                                                                {permissions.map(permission => (
+                                                                    <div key={permission.id} className="col-12 col-md-6">
+                                                                        <div className="form-check">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                id={`permission-${permission.id}`}
+                                                                                value={permission.id}
+                                                                                checked={selectedPermissions.includes(permission.id)}  // Preselect the checkbox if permission is selected
+                                                                                onChange={handlePermissionChange}
+                                                                                className="form-check-input"
+                                                                            />
+                                                                            <label htmlFor={`permission-${permission.id}`} className="form-check-label">
+                                                                                {permission.name}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
                                                             </div>
                                                         </div>
 

@@ -4,47 +4,47 @@ import axios from 'axios';
 import NavBar from '@/sections/NavBar';
 import { useRouter } from 'next/navigation';
 
-export default function PermissionList() {
-    const [permissions, setPermissions] = useState([]);
+export default function UserList() {
+    const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
 
-    // Fetch permissions
+    // Fetch users
     useEffect(() => {
-        fetchPermissions();
+        fetchUsers();
     }, []);
 
-    const fetchPermissions = async () => {
+    const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/api/permissions');
-            setPermissions(response.data.permissions); 
+            const response = await axios.get('http://127.0.0.1:8000/api/users'); // Adjust the endpoint as necessary
+            setUsers(response.data.users); 
             setError('');
         } catch (error) {
-            setError('Failed to fetch permissions.');
+            setError('Failed to fetch users.');
         }
     };
 
-    // Delete a permission
+    // Delete a user
     const handleDelete = async (id) => {
-        if (confirm('Are you sure you want to delete this permission?')) {
+        if (confirm('Are you sure you want to delete this user?')) {
             try {
-                const response = await axios.delete(`http://127.0.0.1:8000/api/permissions/${id}`);
-                setPermissions(permissions.filter((permission) => permission.id !== id));
+                const response = await axios.delete(`http://127.0.0.1:8000/api/users/${id}`); // Adjust the endpoint as necessary
+                setUsers(users.filter((user) => user.id !== id));
                 setSuccessMessage(response.data.message);
                 setError('');
             } catch (error) {
                 setSuccessMessage('');
                 setError(
-                    error.response?.data?.message || 'Failed to delete permission.'
+                    error.response?.data?.message || 'Failed to delete user.'
                 );
             }
         }
     };
 
-
+    // Edit a user
     const handleEdit = (id) => {
-        router.push(`/super-admin/permissions-edit?id=${id}`);
+        router.push(`/users/edit?id=${id}`);
     };
 
     return (
@@ -57,8 +57,8 @@ export default function PermissionList() {
                             <div className="">
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-center mb-4">
-                                        <h1 className="text-center">Permission List</h1>
-                                        <a href="/super-admin/permissions" className="btn btn-primary">Create Permission</a>
+                                        <h1 className="text-center">User List</h1>
+                                        <a href="/super-admin/user-create" className="btn btn-primary">Create User</a>
                                     </div>
 
                                     {error && (
@@ -78,26 +78,30 @@ export default function PermissionList() {
                                             <thead className="table-dark">
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Permission Name</th>
+                                                    <th>Username</th>
+                                                    <th>Role</th>
+                                                    <th>Email</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {permissions.length > 0 ? (
-                                                    permissions.map((permission, index) => (
-                                                        <tr key={permission.id}>
+                                                {users.length > 0 ? (
+                                                    users.map((user, index) => (
+                                                        <tr key={user.id}>
                                                             <td>{index + 1}</td>
-                                                            <td>{permission.name}</td>
+                                                            <td>{user.username}</td>
+                                                            <td>{user.role}</td>
+                                                            <td>{user.email}</td>
                                                             <td>
                                                                 <button
                                                                     className="btn btn-sm btn-primary me-2"
-                                                                    onClick={() => handleEdit(permission.id)}
+                                                                    onClick={() => handleEdit(user.id)}
                                                                 >
                                                                     Edit
                                                                 </button>
                                                                 <button
                                                                     className="btn btn-sm btn-danger"
-                                                                    onClick={() => handleDelete(permission.id)}
+                                                                    onClick={() => handleDelete(user.id)}
                                                                 >
                                                                     Delete
                                                                 </button>
@@ -106,8 +110,8 @@ export default function PermissionList() {
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan="3" className="text-center">
-                                                            No permissions found.
+                                                        <td colSpan="4" className="text-center">
+                                                            No users found.
                                                         </td>
                                                     </tr>
                                                 )}

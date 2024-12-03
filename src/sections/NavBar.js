@@ -1,15 +1,35 @@
 "use client";
 import { IoNotificationsOutline } from "react-icons/io5";
 import React, { useState } from 'react';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import 'bootstrap/dist/js/bootstrap.bundle';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap CSS is imported
+import 'bootstrap/dist/js/bootstrap.bundle';  // Ensure Bootstrap JS is imported
 import Header from "./Header";
 import '../app/globals.css';
-
 
 export default function NavBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
+
+
+  const handleLogout = () => {
+    try {
+      // Check if the token exists in localStorage
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Remove the token from localStorage
+        localStorage.removeItem('token');
+        console.log('Token removed');
+      }
+  
+      // Redirect to the login/signup page
+      window.location.href = '/auth/signin';
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+  
+
+
 
   // Handle toggling the mobile menu
   const handleToggle = () => {
@@ -34,18 +54,24 @@ export default function NavBar() {
 
   return (
     <div>
-      <nav className="navbar navbar-expand-lg bg-black 
-       ">
-        <div className="container-fluid   px-sm-3 px-md-4 ">
+      <nav className="navbar navbar-expand-lg bg-black">
+        <div className="container-fluid px-sm-3 px-md-4">
           <div className="d-flex align-items-center justify-content-center">
             <a className="navbar-brand d-flex align-items-center" href="#">
               <img src="/assets/brandlogo.jpg" width="42" height="32" alt="LuckyJob Logo" className="me-2" />
               <span className="fw-semibold text-white">Talent-Sift</span>
             </a>
-            <div className="d-flex flex-column  flex-lg-row align-items-end align-items-center gap-2 d-sm-flex d-md-none ">
+            <div className="d-flex flex-column flex-lg-row align-items-end align-items-center gap-2 d-sm-flex d-md-none">
               <div className="d-flex align-items-center gap-3">
-                <div className="position-relative">
-                  <a className="profile-icon">
+                {/* Profile Dropdown */}
+                <div className="dropdown">
+                  <a
+                    className="profile-icon"
+                    href="#"
+                    id="profileDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     <img
                       src="/assets/userimg.png"
                       alt="Profile"
@@ -71,7 +97,10 @@ export default function NavBar() {
                       }}
                     ></span>
                   </a>
+                  {/* Use dropdown-menu-end to align the dropdown to the left */}
+                 
                 </div>
+                {/* Notification Icon */}
                 <div className="position-relative">
                   <button className="btn btn-link text-white p-0" aria-label="Settings">
                     <IoNotificationsOutline size={20} />
@@ -153,8 +182,15 @@ export default function NavBar() {
             </ul>
             <div className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 d-none d-md-flex">
               <div className="d-flex align-items-center gap-3">
-                <div className="position-relative">
-                  <a className="profile-icon">
+                {/* Profile Dropdown for Larger Screens */}
+                <div className="dropdown">
+                  <a
+                    className="profile-icon"
+                    href="#"
+                    id="profileDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     <img
                       src="/assets/userimg.png"
                       alt="Profile"
@@ -180,7 +216,23 @@ export default function NavBar() {
                       }}
                     ></span>
                   </a>
+                  {/* Use dropdown-menu-end to align the dropdown to the left */}
+                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                    <li>
+                      <a className="dropdown-item" href="/profile">User Profile</a>
+                    </li>
+                    <li>
+                       <a
+                          className="dropdown-item"
+                          href="#"
+                          onClick={handleLogout} // Add onClick event to logout
+                        >
+                          Sign Out
+                        </a>
+                    </li>
+                  </ul>
                 </div>
+                {/* Notification Icon */}
                 <div className="position-relative">
                   <button className="btn btn-link text-white p-0" aria-label="Settings">
                     <IoNotificationsOutline size={20} />

@@ -1,9 +1,7 @@
-import NavBar from "@/sections/NavBar";
 
 export default function Page() {
     return (
         <div>
-            <NavBar />
             <main className="container py-4">
                 <section>
                     <nav className="d-flex gap-3 align-items-center">

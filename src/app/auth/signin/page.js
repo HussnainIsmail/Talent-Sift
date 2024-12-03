@@ -1,15 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../../../../lib/axios';
 import '../../globals.css';
-import NavBar from '@/sections/NavBar'
+import NavBar from '@/sections/NavBar';
+import { useRouter } from 'next/navigation';
 
 export default function page() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();  // Initialize the Next.js router
+
+  // Check if token exists in localStorage and redirect if it does
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      router.push('/');  // Redirect to home page
+    }
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +30,7 @@ export default function page() {
       localStorage.setItem('token', response.data.token);
       alert('Login successful!');
       setLoading(false);
-      window.location.href = '/';
+      router.push('/');  // Redirect to home page
     } catch (error) {
       setLoading(false);
 
@@ -63,7 +72,6 @@ export default function page() {
                             />
                           </a>
                         </div>
-                        {/* <h2 className="h4 text-center">Sign In</h2> */}
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                         <form onSubmit={handleSubmit}>
                           <div className="form-floating mb-3">
@@ -135,5 +143,4 @@ export default function page() {
       </section>
     </div>
   );
-
 }
