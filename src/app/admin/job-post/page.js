@@ -19,8 +19,9 @@ export default function Page() {
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const router = useRouter();
-
+    // const router = useRouter();
+    const token = localStorage.getItem('token');
+    
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
 
@@ -88,6 +89,7 @@ export default function Page() {
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/store', formDataToSend, {
                 headers: {
+                    'Authorization': `Bearer ${token}` ,
                     'Content-Type': 'multipart/form-data'
                 }
             });

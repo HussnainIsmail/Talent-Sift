@@ -18,7 +18,7 @@ export default function Page() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const jobId = searchParams.get('id'); 
-
+    const token = localStorage.getItem('token');
     // Set job_id in formData when jobId exists
     useEffect(() => {
         if (jobId) {
@@ -72,12 +72,14 @@ export default function Page() {
             const response = await axios.post('http://127.0.0.1:8000/api/applications/store', formDataToSubmit, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                     'Authorization': `Bearer ${token}` 
+
                 },
             });
 
             // Show success message and redirect
             alert(response.data.message);
-            router.push('/auth/signin');  // Redirect to the sign-in page
+            router.push('/');  // Redirect to the sign-in page
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);  // Set validation errors

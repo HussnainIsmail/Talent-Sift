@@ -28,6 +28,7 @@ export default function page() {
     try {
       const response = await axios.post('/login', { email, password });
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('admin', response.data.admin);
       alert('Login successful!');
       setLoading(false);
       router.push('/');  // Redirect to home page

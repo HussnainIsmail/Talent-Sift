@@ -13,12 +13,15 @@ export default function NavBar() {
 
   const handleLogout = () => {
     try {
-      // Check if the token exists in localStorage
       const token = localStorage.getItem('token');
+      const role = localStorage.getItem('role');
       if (token) {
-        // Remove the token from localStorage
         localStorage.removeItem('token');
         console.log('Token removed');
+      }
+      if (role) {
+        localStorage.removeItem('role');
+        console.log('Role removed');
       }
   
       // Redirect to the login/signup page
@@ -27,6 +30,7 @@ export default function NavBar() {
       console.error('Error during logout:', error);
     }
   };
+  
   
 
 

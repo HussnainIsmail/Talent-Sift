@@ -5,10 +5,10 @@ import NavBar from "@/sections/NavBar";
 export default function Home() {
   return (
     <div className="">
-      <div>
+      {/* <div>
         <a>name of logn user</a>
         <a>Role oof login user sow here</a>
-      </div>
+      </div> */}
       <NavBar />
       <Header/>
       <MainSection/>

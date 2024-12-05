@@ -17,6 +17,9 @@ export default function Page() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
 
+    
+    const token = localStorage.getItem('token');
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -24,14 +27,6 @@ export default function Page() {
             [name]: value,
         });
     };
-    
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('Access denied. Please log in first.');
-            router.push('/auth/signin');
-        }
-    }, [router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -56,7 +51,12 @@ export default function Page() {
         console.log("Data to send:", dataToSend);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/companies/store', dataToSend);
+            // Include token in headers for authentication
+            const response = await axios.post('http://127.0.0.1:8000/api/companies/store', dataToSend, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
             alert(response.data.message);
             router.push('/');
         } catch (error) {
@@ -91,7 +91,7 @@ export default function Page() {
                                                 <form onSubmit={handleSubmit}>
                                                     <div className="row gy-3">
 
-                                                        {/* Company Name */}
+                                                        
                                                         <div className="col-12 col-md-6">
                                                             <div className="form-floating mb-3">
                                                                 <input
