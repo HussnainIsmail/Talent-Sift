@@ -13,7 +13,6 @@ export default function page() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();  // Initialize the Next.js router
 
-  // Check if token exists in localStorage and redirect if it does
   useEffect(() => {
     if (localStorage.getItem('token')) {
       router.push('/');  // Redirect to home page
@@ -23,12 +22,13 @@ export default function page() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(''); // Clear previous errors
+    setError(''); 
 
     try {
       const response = await axios.post('/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('admin', response.data.admin);
+      localStorage.setItem('token', response.data.token); 
+      localStorage.setItem('role', response.data.role); 
+      localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
       alert('Login successful!');
       setLoading(false);
       router.push('/');  // Redirect to home page
