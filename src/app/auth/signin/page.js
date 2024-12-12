@@ -11,11 +11,11 @@ export default function page() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();  // Initialize the Next.js router
+  const router = useRouter();  
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      router.push('/');  // Redirect to home page
+      router.push('/');  
     }
   }, [router]);
 
@@ -28,10 +28,16 @@ export default function page() {
       const response = await axios.post('/login', { email, password });
       localStorage.setItem('token', response.data.token); 
       localStorage.setItem('role', response.data.role); 
+      localStorage.setItem('name', response.data.name); 
       localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
       alert('Login successful!');
       setLoading(false);
-      router.push('/');  // Redirect to home page
+      const role = response.data.role;
+       if (role === 'admin' || role === 'superadmin') {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/');
+    }
     } catch (error) {
       setLoading(false);
 

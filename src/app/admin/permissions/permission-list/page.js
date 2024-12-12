@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import NavBar from '@/sections/NavBar';
 import { useRouter } from 'next/navigation';
 
 export default function PermissionList() {
@@ -44,12 +43,11 @@ export default function PermissionList() {
 
 
     const handleEdit = (id) => {
-        router.push(`/super-admin/permissions-edit?id=${id}`);
+        router.push(`/admin/permissions/edit-permissions?id=${id}`);
     };
 
     return (
         <div>
-            <NavBar />
             <section className="p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">
@@ -58,7 +56,7 @@ export default function PermissionList() {
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                         <h1 className="text-center">Permission List</h1>
-                                        <a href="/super-admin/permissions" className="btn btn-primary">Create Permission</a>
+                                        <a href="/admin/permissions/create-permissions" className="btn btn-primary">Create Permission</a>
                                     </div>
 
                                     {error && (

@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import NavBar from '@/sections/NavBar';
 import { useRouter } from 'next/navigation';
 
 export default function Page() {
@@ -42,7 +41,7 @@ export default function Page() {
 
     // Navigate to edit role page
     const handleEdit = (id) => {
-        router.push(`/super-admin/roles-edit?id=${id}`);
+        router.push(`/admin/roles/edit-roles?id=${id}`);
     };
 
     // Navigate to give permissions page
@@ -52,15 +51,14 @@ export default function Page() {
 
     return (
         <div>
-            <NavBar />
             <section className="p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-12 col-xxl-11">
                             <div className="card-body">
                                 <div className="d-flex justify-content-between align-items-center mb-4">
-                                    <h1 className="text-center">Roles List</h1>
-                                    <a href="/super-admin/roles" className="btn btn-primary">Create Role</a>
+                                    <h4 className="text-center">Roles List</h4>
+                                    <a href="/admin/roles/create-roles" className="btn btn-primary">Create Role</a>
                                 </div>
 
                                 {error && (

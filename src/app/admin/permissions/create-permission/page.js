@@ -1,6 +1,5 @@
 'use client'
-import NavBar from '@/sections/NavBar';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -9,27 +8,21 @@ export default function Page() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
-    const [permissions, setPermissions] = useState([]);
-    const [selectedPermissions, setSelectedPermissions] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Submitting Data:", {
-            name: name,
-            permissions: selectedPermissions,
-        });
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/roles', {
+            const response = await axios.post('http://127.0.0.1:8000/api/permissions', {
                 name: name,
-                permissions: selectedPermissions,
             });
 
             setSuccessMessage(response.data.message);
             setError('');
-            router.push('/super-admin/roles-list');
+            router.push('/admin/perissions/edit-permissions');
         } catch (error) {
             if (error.response && error.response.data.errors) {
+                // Handle validation errors from Laravel
                 setError(error.response.data.errors.name ? error.response.data.errors.name[0] : 'An unexpected error occurred.');
             } else {
                 setError('An unexpected error occurred.');
@@ -37,33 +30,10 @@ export default function Page() {
         }
     };
 
-    // Fetch permissions
-    useEffect(() => {
-        fetchPermissions();
-    }, []);
-
-    const fetchPermissions = async () => {
-        try {
-            const response = await axios.get('http://127.0.0.1:8000/api/permissions');
-            setPermissions(response.data.permissions);
-            setError('');
-        } catch (error) {
-            setError('Failed to fetch permissions.');
-        }
-    };
-
-    const handleCheckboxChange = (permissionId) => {
-        setSelectedPermissions((prev) =>
-            prev.includes(permissionId)
-                ? prev.filter((id) => id !== permissionId)
-                : [...prev, permissionId]
-        );
-    };
-
     return (
-        <div className=''>
-            <NavBar />
-            <section className="p-3 p-md-4 p-xl-5">
+        <div className=''  >
+            {/* <NavAnchor/> */}
+            <section className=" p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-12 col-xxl-11">
@@ -74,8 +44,8 @@ export default function Page() {
                                             <div className="card-body p-3 p-md-4 p-xl-5">
                                                 <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
-                                                        <h2 className="text-center">Create Roles</h2>
-                                                        <a href="/super-admin/roles-list" className="btn btn-primary">Roles List</a>
+                                                        <h2 className="text-center">Create Permission</h2>
+                                                        <a href="/admin/permissions/permissions-list" className="btn btn-primary"> Permission List</a>
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>
@@ -92,33 +62,7 @@ export default function Page() {
                                                                     onChange={(e) => setName(e.target.value)}
                                                                     required
                                                                 />
-                                                                <label htmlFor="name">Role Name</label>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Permissions Checkboxes */}
-                                                        <div className="col-12">
-                                                            <label className="mb-2">Assign Permissions:</label>
-                                                            <div className="row">
-                                                                {permissions.map((permission) => (
-                                                                    <div className="col-6 col-md-4" key={permission.id}>
-                                                                        <div className="form-check">
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                id={`permission-${permission.id}`}
-                                                                                className="form-check-input"
-                                                                                value={permission.id}
-                                                                                onChange={() => handleCheckboxChange(permission.id)}
-                                                                            />
-                                                                            <label
-                                                                                htmlFor={`permission-${permission.id}`}
-                                                                                className="form-check-label"
-                                                                            >
-                                                                                {permission.name}
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
+                                                                <label htmlFor="name">Permission Name</label>
                                                             </div>
                                                         </div>
 

@@ -19,7 +19,11 @@ export default function Page() {
 
     
     const token = localStorage.getItem('token');
-
+    if (!token) {
+        setError("User not authenticated.");
+        setLoading(false);
+        return;
+      }
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({

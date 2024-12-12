@@ -1,5 +1,4 @@
 'use client';
-import NavBar from '@/sections/NavBar';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -17,7 +16,7 @@ export default function Page() {
     const [selectedPermissions, setSelectedPermissions] = useState([]); // Permissions selected for the role
 
     useEffect(() => {
-        fetchRoleAndPermissions(); // Fetch role details and permissions on page load
+        fetchRoleAndPermissions(); 
     }, []);
 
     // Fetch role details and available permissions
@@ -72,7 +71,6 @@ export default function Page() {
 
     return (
         <div>
-            <NavBar />
             <section className="p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">
@@ -85,7 +83,7 @@ export default function Page() {
                                                 <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                                         <h2 className="text-center">Edit Role</h2>
-                                                        <a href="/super-admin/roles-list" className="btn btn-primary">Role List</a>
+                                                        <a href="/admin/roles/roles-list" className="btn btn-primary">Role List</a>
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>

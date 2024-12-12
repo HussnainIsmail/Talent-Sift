@@ -2,7 +2,7 @@
 import NavBar from '@/sections/NavBar';
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+
 
 export default function Page() {
     const [formData, setFormData] = useState({
@@ -21,7 +21,11 @@ export default function Page() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     // const router = useRouter();
     const token = localStorage.getItem('token');
-    
+    if (!token) {
+        setError("User not authenticated.");
+        setLoading(false);
+        return;
+      } 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
 
