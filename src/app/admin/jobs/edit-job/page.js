@@ -1,121 +1,82 @@
-'use client'
-import NavBar from '@/sections/NavBar';
-import React, { useState } from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 export default function Page() {
-    const [formData, setFormData] = useState({
-        jobtitle: '',
-        email: '',
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
+    const [jobDetail, setJobDetail] = useState({
+        name: '',
         description: '',
-        jobType: [],
-        workLocation: [],
-        subscribe: 0,
-        image: null,
-        minSalary: '',
-        maxSalary: '',
-        jobLevel: []
+        // Add other fields you expect from the response
     });
-    const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    // const router = useRouter();
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const router = useRouter();
     const token = localStorage.getItem('token');
-    if (!token) {
-        setError("User not authenticated.");
-        setLoading(false);
-        return;
-      } 
-    const handleChange = (e) => {
-        const { name, value, type, checked, files } = e.target;
 
-        if (type === 'checkbox') {
-            if (name === 'subscribe') {
-                setFormData({
-                    ...formData,
-                    [name]: checked ? 1 : 0
-                });
-            } else if (name === 'jobType' || name === 'workLocation' || name === 'jobLevel') {
-                setFormData({
-                    ...formData,
-                    [name]: checked
-                        ? [...formData[name], value]
-                        : formData[name].filter(item => item !== value)
-                });
-            }
-        } else if (type === 'file') {
-            setFormData({
-                ...formData,
-                image: files[0]
+    useEffect(() => {
+        if (id) {
+            fetchJobDetails();
+        }
+    }, [id]);
+
+    // Fetch the job details for editing
+    const fetchJobDetails = async () => {
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${id}/edit`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
             });
-        } else if (name === 'minSalary' || name === 'maxSalary') {
-            // Allow only numeric values
-            const sanitizedValue = value.replace(/[^0-9]/g, '');
-            setFormData({
-                ...formData,
-                [name]: sanitizedValue
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value
-            });
+
+            // Store the full job object in the jobDetail state
+            setJobDetail(response.data.job);
+        } catch (error) {
+            setError('Failed to fetch job details.');
         }
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        console.log(formData);
-        const formDataToSend = new FormData();
-        formDataToSend.append('jobtitle', formData.jobtitle);
-        formDataToSend.append('email', formData.email);
-        formDataToSend.append('description', formData.description);
-
-        // Append array values for jobType, workLocation, and jobLevel
-        formData.jobType.forEach(job => formDataToSend.append('jobType[]', job));
-        formData.workLocation.forEach(location => formDataToSend.append('workLocation[]', location));
-        formData.jobLevel.forEach(level => formDataToSend.append('jobLevel[]', level));
-
-        // Append file if there is one
-        if (formData.image) {
-            formDataToSend.append('image', formData.image);
-        }
-
-        // Append subscription checkbox
-        formDataToSend.append('subscribe', formData.subscribe);
-
-        // Append salary information
-        formDataToSend.append('minSalary', formData.minSalary);
-        formDataToSend.append('maxSalary', formData.maxSalary);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/jobs/store', formDataToSend, {
+            const response = await axios.put(`http://127.0.0.1:8000/api/jobs/${id}`, jobDetail, {
                 headers: {
-                    'Authorization': `Bearer ${token}` ,
-                    'Content-Type': 'multipart/form-data'
-                }
+                    'Authorization': `Bearer ${token}`,
+                },
             });
 
-            alert(response.data.message);
-            router.push('/');
+            // After the update, store the updated job object
+            setJobDetail(response.data.job);
+            setSuccessMessage(response.data.message);  // Success message
+            setError('');  // Clear any previous errors
+
+            // Redirect to the job list page after successful update
+            router.push('/super-admin/jobs-list');
         } catch (error) {
-            console.error('Job Post Failed:', error);
-            if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
+            if (error.response && error.response.data.errors) {
+                setError(error.response.data.errors.name ? error.response.data.errors.name[0] : 'An unexpected error occurred.');
             } else {
-                setErrors({ general: "An error occurred, please try again." });
+                setError('An unexpected error occurred.');
             }
         }
+    };
 
-        setIsSubmitting(false);
+    // Handle changes in the form fields and update the jobDetail state
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setJobDetail(prevState => ({
+            ...prevState,
+            [name]: value,  // Dynamically update the correct field in the jobDetail state
+        }));
     };
 
     return (
         <div>
-            <NavBar />
-            <section className="bg-light p-3 p-md-4 p-xl-5">
+            <section className="p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-12 col-xxl-11">
@@ -125,13 +86,13 @@ export default function Page() {
                                         <div className="col-12 col-lg-11 col-xl-10">
                                             <div className="card-body p-3 p-md-4 p-xl-5">
                                                 <div className="row">
-                                                    <div className="col-12">
-                                                        <h2 className="h4 text-center mb-4">Job Details</h2>
+                                                    <div className="d-flex justify-content-between align-items-center mb-4">
+                                                        <h2 className="text-center">Edit Job Details</h2>
+                                                        <a href="/super-admin/jobs-list" className="btn btn-primary">Job List</a>
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>
                                                     <div className="row gy-3">
-                                                        {/* Job Title Input */}
                                                         <div className="col-12 col-md-6">
                                                             <div className="form-floating mb-3">
                                                                 <input
@@ -140,7 +101,7 @@ export default function Page() {
                                                                     name="jobtitle"
                                                                     className="form-control"
                                                                     placeholder="Job title"
-                                                                    value={formData.jobtitle}
+                                                                    value={setJobDetail.jobtitle}
                                                                     onChange={handleChange}
                                                                     required
                                                                 />
@@ -148,7 +109,6 @@ export default function Page() {
                                                             </div>
                                                         </div>
 
-                                                        {/* Email Input */}
                                                         <div className="col-12 col-md-6">
                                                             <div className="form-floating mb-3">
                                                                 <input
@@ -157,7 +117,7 @@ export default function Page() {
                                                                     name="email"
                                                                     className="form-control"
                                                                     placeholder="Email"
-                                                                    value={formData.email}
+                                                                    value={setJobDetail.email}
                                                                     onChange={handleChange}
                                                                     required
                                                                 />
@@ -176,7 +136,7 @@ export default function Page() {
                                                                         name="minSalary"
                                                                         className="form-control"
                                                                         placeholder="Minimum Salary"
-                                                                        value={formData.minSalary}
+                                                                        value={setJobDetail.minSalary}
                                                                         onChange={handleChange}
                                                                         required
                                                                     />
@@ -196,7 +156,7 @@ export default function Page() {
                                                                         name="maxSalary"
                                                                         className="form-control"
                                                                         placeholder="Maximum Salary"
-                                                                        value={formData.maxSalary}
+                                                                        value={setJobDetail.maxSalary}
                                                                         onChange={handleChange}
                                                                         required
                                                                     />
@@ -215,7 +175,7 @@ export default function Page() {
                                                                     rows="5"
                                                                     className="form-control"
                                                                     placeholder="Description"
-                                                                    value={formData.description}
+                                                                    value={jobDetail.description}
                                                                     onChange={handleChange}
                                                                     required
                                                                 ></textarea>
@@ -233,7 +193,7 @@ export default function Page() {
                                                                     value="full-time"
                                                                     id="full-time"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobType.includes('full-time')}
+                                                                    checked={jobDetail.jobType.includes('full-time')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="full-time" className="form-check-label">Full-Time</label>
@@ -245,7 +205,7 @@ export default function Page() {
                                                                     value="part-time"
                                                                     id="part-time"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobType.includes('part-time')}
+                                                                    checked={jobDetail.jobType.includes('part-time')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="part-time" className="form-check-label">Part-Time</label>
@@ -257,7 +217,7 @@ export default function Page() {
                                                                     value="internship"
                                                                     id="internship"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobType.includes('internship')}
+                                                                    checked={jobDetail.jobType.includes('internship')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="internship" className="form-check-label">Internship</label>
@@ -269,7 +229,7 @@ export default function Page() {
                                                                     value="project-work"
                                                                     id="project-work"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobType.includes('project-work')}
+                                                                    checked={jobDetail.jobType.includes('project-work')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="project-work" className="form-check-label">Project Work</label>
@@ -277,7 +237,7 @@ export default function Page() {
                                                         </div>
 
                                                         {/* Work Location Checkbox */}
-                                                        <div className="col-12 col-md-6">
+                                                        {/* <div className="col-12 col-md-6">
                                                             <label>Work Location:</label>
                                                             <div className="form-check">
                                                                 <input
@@ -286,7 +246,7 @@ export default function Page() {
                                                                     value="remote"
                                                                     id="remote"
                                                                     className="form-check-input"
-                                                                    checked={formData.workLocation.includes('remote')}
+                                                                    checked={jobDetail.workLocation.includes('remote')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="remote" className="form-check-label">Remote</label>
@@ -298,15 +258,15 @@ export default function Page() {
                                                                     value="on-site"
                                                                     id="on-site"
                                                                     className="form-check-input"
-                                                                    checked={formData.workLocation.includes('on-site')}
+                                                                    checked={jobDetail.workLocation.includes('on-site')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="on-site" className="form-check-label">On-site</label>
                                                             </div>
-                                                        </div>
+                                                        </div> */}
 
                                                         {/* Job Level Checkbox */}
-                                                        <div className="col-12 col-md-6">
+                                                        {/* <div className="col-12 col-md-6">
                                                             <label>Job Level:</label>
                                                             <div className="form-check">
                                                                 <input
@@ -315,7 +275,7 @@ export default function Page() {
                                                                     value="entry"
                                                                     id="entry"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobLevel.includes('entry')}
+                                                                    checked={jobDetail.jobLevel.includes('entry')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="entry" className="form-check-label">Entry Level</label>
@@ -327,7 +287,7 @@ export default function Page() {
                                                                     value="middle"
                                                                     id="middle"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobLevel.includes('middle')}
+                                                                    checked={jobDetail.jobLevel.includes('middle')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="middle" className="form-check-label">Middle Level</label>
@@ -339,17 +299,29 @@ export default function Page() {
                                                                     value="expert"
                                                                     id="expert"
                                                                     className="form-check-input"
-                                                                    checked={formData.jobLevel.includes('expert')}
+                                                                    checked={jobDetail.jobLevel.includes('expert')}
                                                                     onChange={handleChange}
                                                                 />
                                                                 <label htmlFor="expert" className="form-check-label">Expert</label>
                                                             </div>
-                                                        </div>
+                                                        </div> */}
 
-                                                        {/* Submit Button */}
+
+                                                        {error && (
+                                                            <div className="col-12">
+                                                                <div className="alert alert-danger">{error}</div>
+                                                            </div>
+                                                        )}
+
+                                                        {successMessage && (
+                                                            <div className="col-12">
+                                                                <div className="alert alert-success">{successMessage}</div>
+                                                            </div>
+                                                        )}
+
                                                         <div className="col-12 text-center">
-                                                            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                                                                {isSubmitting ? 'Submitting...' : 'Post Job'}
+                                                            <button type="submit" className="btn btn-primary">
+                                                                Update Job
                                                             </button>
                                                         </div>
                                                     </div>

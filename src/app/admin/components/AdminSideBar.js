@@ -7,32 +7,39 @@ import {
   FaShieldAlt,
   FaCog,
   FaCaretDown,
+  FaUsers,
+  FaKey,
+  FaClipboardList,
+  FaBriefcase,
+  FaBuilding, // Added icon for Company
 } from "react-icons/fa";
 
 export default function AdminSideBar() {
   const pathname = usePathname();
   const [openDropdowns, setOpenDropdowns] = useState([]);
   const [role, setRole] = useState(null);
+  const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
 
   useEffect(() => {
-    // Retrieve role from localStorage
     const storedRole = localStorage.getItem("role");
     setRole(storedRole);
 
-    // Redirect to 404 page if no role or role is "user"
     if (!storedRole || storedRole === "user") {
-      window.location.href = "/404"; // Replace with your 404 page route
+      window.location.href = "/404";
     }
   }, []);
 
   const links = [
     { label: "Dashboard", icon: FaTachometerAlt, path: "/admin/dashboard" },
-    { label: "Users", icon: FaUserAlt, path: "/admin/users/user-list" },
   ];
 
   const dropdownLinks = {
+    Users: [
+      { label: "Users List", path: "/admin/users/user-list" },
+      { label: "Edit User", path: "/admin/users/edit-user" },
+    ],
     Roles: [
-      { label: "Roles List", path: "/admin/roles/roles-list" },
+      { label: "Roles List", path: "/admin/roles/role-list" },
       { label: "Create Role", path: "/admin/roles/create-role" },
       { label: "Edit Role", path: "/admin/roles/edit-role" },
     ],
@@ -41,10 +48,27 @@ export default function AdminSideBar() {
       { label: "Create Permission", path: "/admin/permissions/create-permission" },
       { label: "Edit Permission", path: "/admin/permissions/edit-permission" },
     ],
+
+    // Added Company dropdown
+    Company: [
+      { label: "Register", path: "/admin/company/register" },
+    ],
     Jobs: [
       { label: "Job List", path: "/admin/jobs/job-list" },
       { label: "Create Job", path: "/admin/jobs/create-job" },
-    ],
+      { label: "Edit Job", path: "/admin/jobs/edit-job" },
+      { label: "CV List", path: "/admin/jobs/cv-list" },
+
+    ]
+  };
+
+  // Mapping icons to each dropdown
+  const dropdownIcons = {
+    Users: FaUsers,
+    Roles: FaKey,
+    Permissions: FaClipboardList,
+    Jobs: FaBriefcase,
+    Company: FaBuilding, // Icon for the Company dropdown
   };
 
   const toggleDropdown = (dropdown) => {
@@ -78,14 +102,14 @@ export default function AdminSideBar() {
         </Link>
       </div>
       <hr />
+
       <ul className="list-unstyled flex-grow-1">
         {links.map(({ label, icon: Icon, path }) => (
           <li className="mb-2 px-2" key={label}>
             <Link
               href={path}
-              className={`p-2 nav-link d-flex align-items-center w-100 ${
-                pathname === path ? "bg-primary text-white rounded" : ""
-              }`}
+              className={`p-2 nav-link d-flex align-items-center w-100 ${pathname === path ? "bg-primary text-white rounded" : ""
+                }`}
             >
               <Icon className="me-2" />
               {label}
@@ -93,22 +117,28 @@ export default function AdminSideBar() {
           </li>
         ))}
         {Object.keys(dropdownLinks).map((dropdown) => {
-          // Hide "Roles" and "Permissions" if role is "admin"
-          if ((role === "admin" && (dropdown === "Roles" || dropdown === "Permissions")) ||
-              (role === "super-admin" && dropdown === "Jobs")) {
+          if (role === "admin" || role === "super-admin") {
+            if (dropdown === "Jobs") {
+              return null;
+            }
+          }
+
+          // Hide "Roles" and "Permissions" if role is "sub-admin"
+          if (role === "sub-admin" && (dropdown === "Roles" || dropdown === "Permissions")) {
             return null;
           }
+
+          const DropdownIcon = dropdownIcons[dropdown];
 
           return (
             <li className="mb-2 px-2" key={dropdown}>
               <div
-                className={`p-2 nav-link d-flex align-items-center w-100 ${
-                  openDropdowns.includes(dropdown) ? "bg-light rounded" : ""
-                }`}
+                className={`p-2 nav-link d-flex align-items-center w-100 ${openDropdowns.includes(dropdown) ? "bg-light rounded" : ""
+                  }`}
                 onClick={() => toggleDropdown(dropdown)}
                 style={{ cursor: "pointer" }}
               >
-                <FaShieldAlt className="me-2" />
+                <DropdownIcon className="me-2" />
                 {dropdown}
                 <FaCaretDown className="ms-auto" />
               </div>
@@ -117,20 +147,29 @@ export default function AdminSideBar() {
                   className="list-unstyled ms-3"
                   style={{ listStyleType: "disc" }}
                 >
-                  {dropdownLinks[dropdown].map(({ label, path }) => (
-                    <li className="ms-2 mt-1" key={label}>
-                      <Link
-                        href={path}
-                        className={`p-2 nav-link d-flex align-items-center ${
-                          pathname === path
+                  {dropdownLinks[dropdown]
+                    .filter(({ label }) => {
+                      if (label === "Create Role" && !permissions.includes("create-role")) {
+                        return false;
+                      }
+                      if (label === "Create Permission" && !permissions.includes("create-permission")) {
+                        return false;
+                      }
+                      return true;
+                    })
+                    .map(({ label, path }) => (
+                      <li className="ms-3 mt-1" key={label}>
+                        <Link
+                          href={path}
+                          className={`p-2 nav-link d-flex align-items-center ${pathname === path
                             ? "bg-primary text-white rounded"
                             : ""
-                        }`}
-                      >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
+                            }`}
+                        >
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
                 </ul>
               )}
             </li>
@@ -140,9 +179,8 @@ export default function AdminSideBar() {
       <div className="mt-auto mb-3">
         <Link
           href="/admin/setting"
-          className={`p-2 nav-link d-flex align-items-center w-100 ${
-            pathname === "/admin/setting" ? "bg-primary text-white rounded" : ""
-          }`}
+          className={`p-2 nav-link d-flex align-items-center w-100 ${pathname === "/admin/setting" ? "bg-primary text-white rounded" : ""
+            }`}
         >
           <FaCog className="me-2" />
           Settings

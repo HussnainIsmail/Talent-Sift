@@ -18,7 +18,6 @@ export default function UserList() {
         try {
             const token = localStorage.getItem('token');
 
-            // Make the API request with the Authorization header
             const response = await axios.get('http://127.0.0.1:8000/api/users', {
                 headers: {
                     'Authorization': `Bearer ${token}` 
@@ -26,13 +25,13 @@ export default function UserList() {
             });
 
             setUsers(response.data.users); 
+            
             setError('');
         } catch (error) {
             setError('Failed to fetch users.');
         }
     };
 
-    // Delete a user
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this user?')) {
             try {

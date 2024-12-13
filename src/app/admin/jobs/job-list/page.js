@@ -1,11 +1,13 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [jobs, setJobs] = useState([]);
   const [authJobs, setAuthJobs] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -39,9 +41,49 @@ export default function Page() {
         setLoading(false);
       }
     };
+     
+    const token = localStorage.getItem('token');
 
     fetchJobs();
   }, []);
+
+  // Handle Edit Job
+  const handleEdit = (id) => {
+    // Navigate to the edit job page
+    router.push(`/admin/jobs/edit-job?id=${id}`);
+  };
+
+  // Handle Delete Job
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setError("User not authenticated.");
+          return;
+        }
+
+        const response = await fetch(`http://127.0.0.1:8000/api/jobs/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete job.");
+        }
+
+        // Optimistically update the UI by removing the deleted job
+        setAuthJobs(authJobs.filter((job) => job.id !== id));
+        setError('');
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;

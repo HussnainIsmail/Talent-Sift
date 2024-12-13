@@ -19,10 +19,9 @@ export default function Page() {
 
             setSuccessMessage(response.data.message);
             setError('');
-            router.push('/admin/perissions/edit-permissions');
+            router.push('/admin/permissions/permission-list');
         } catch (error) {
             if (error.response && error.response.data.errors) {
-                // Handle validation errors from Laravel
                 setError(error.response.data.errors.name ? error.response.data.errors.name[0] : 'An unexpected error occurred.');
             } else {
                 setError('An unexpected error occurred.');
@@ -44,8 +43,8 @@ export default function Page() {
                                             <div className="card-body p-3 p-md-4 p-xl-5">
                                                 <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
-                                                        <h2 className="text-center">Create Permission</h2>
-                                                        <a href="/admin/permissions/permissions-list" className="btn btn-primary"> Permission List</a>
+                                                        <h4 className="text-center">Create Permission</h4>
+                                                        {/* <a href="/admin/permissions/permissions-list" className="btn btn-primary"> Permission List</a> */}
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 
-export default function page() {
+export default function EditUserPage() {
     const [user, setUser] = useState({
         name: '',
         email: '',
@@ -12,21 +12,54 @@ export default function page() {
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [roles, setRoles] = useState([]);
+
     const searchParams = useSearchParams();
-    const id = searchParams.get('id');
+    const id = searchParams.get('id');  // Get 'id' from the URL query parameters
 
     useEffect(() => {
-        if (id) fetchUser(id);
+        if (id) {
+            fetchUser(id);
+            fetchRoles();
+        }
     }, [id]);
 
     const fetchUser = async (id) => {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/users/${id}`);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setErrors({ general: 'Authentication token is missing.' });
+                setLoading(false);
+                return;
+            }
+            const response = await axios.get(`http://127.0.0.1:8000/api/users/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
             setUser(response.data.user);
             setLoading(false);
         } catch (error) {
-            setErrors({ general: 'Failed to fetch user details.' });
+            setErrors({ general: error.response?.data?.message || 'Failed to fetch user details.' });
             setLoading(false);
+        }
+    };
+
+    const fetchRoles = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setErrors({ general: 'Authentication token is missing.' });
+                return;
+            }
+            const response = await axios.get('http://127.0.0.1:8000/api/roles', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            setRoles(response.data.roles);
+        } catch (error) {
+            setErrors({ general: error.response?.data?.message || 'Failed to fetch roles.' });
         }
     };
 
@@ -40,10 +73,28 @@ export default function page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSuccessMessage('');  // Clear success message before submitting
+        setErrors({});  // Clear previous errors before submitting
+
+        // Check if all fields are filled
+        if (!user.name || !user.email || !user.role) {
+            setErrors({ general: 'All fields are required.' });
+            return;
+        }
+
         try {
-            const response = await axios.put(`http://127.0.0.1:8000/api/users/update/${id}`, user);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setErrors({ general: 'Authentication token is missing.' });
+                return;
+            }
+
+            const response = await axios.put(`http://127.0.0.1:8000/api/users/update/${id}`, user, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
             setSuccessMessage(response.data.message);
-            setErrors({});
         } catch (error) {
             setErrors({
                 general: error.response?.data?.message || 'Failed to update user.',
@@ -116,11 +167,12 @@ export default function page() {
                                                         onChange={handleChange}
                                                         required
                                                     >
-                                                        <option value="" disabled>
-                                                            Select Role
-                                                        </option>
-                                                        <option value="admin">Admin</option>
-                                                        <option value="user">User</option>
+                                                        <option value="" disabled>Select Role</option>
+                                                        {roles.map(role => (
+                                                            <option key={role.id} value={role.name}>
+                                                                {role.name}
+                                                            </option>
+                                                        ))}
                                                     </select>
                                                     <label htmlFor="role">User Role</label>
                                                 </div>

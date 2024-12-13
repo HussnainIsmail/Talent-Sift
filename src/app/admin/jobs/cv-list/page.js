@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import NavBar from '@/sections/NavBar';
 
 export default function JobApplicationsPage() {
     const [jobApplications, setJobApplications] = useState([]);
@@ -9,7 +8,13 @@ export default function JobApplicationsPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/applications/list') // API route for job applications
+        const token = localStorage.getItem('token'); // Get token from localStorage
+
+        axios.get('http://127.0.0.1:8000/api/applications/list', {
+            headers: {
+                'Authorization': `Bearer ${token}` // Include token in Authorization header
+            }
+        })
             .then((response) => {
                 setJobApplications(response.data.job_applications);
                 setLoading(false);
@@ -33,7 +38,6 @@ export default function JobApplicationsPage() {
         window.location.href = url; 
     };
 
-
     const toggleDropdown = (event, id) => {
         const dropdownMenu = document.getElementById(`dropdownMenu${id}`);
         if (dropdownMenu) {
@@ -49,7 +53,6 @@ export default function JobApplicationsPage() {
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <NavBar />
             <div className="container mt-4" style={{ flexGrow: 1, overflowY: 'auto' }}>
                 {loading && <div className="alert alert-info">Loading job applications...</div>}
                 {error && <div className="alert alert-danger">Error: {error}</div>}

@@ -9,6 +9,8 @@ export default function Page() {
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
 
+    const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
+
     // Fetch roles
     useEffect(() => {
         fetchRoles();
@@ -17,7 +19,7 @@ export default function Page() {
     const fetchRoles = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/api/roles');
-            setRoles(response.data.roles); // Make sure the response has permissions attached properly
+            setRoles(response.data.roles); 
             setError('');
         } catch (error) {
             setError('Failed to fetch roles.');
@@ -26,6 +28,11 @@ export default function Page() {
 
     // Delete a role
     const handleDelete = async (id) => {
+        if (!permissions.includes('delete-role')) {
+            setError('You do not have permission to delete roles.');
+            return;
+        }
+
         if (confirm('Are you sure you want to delete this role?')) {
             try {
                 const response = await axios.delete(`http://127.0.0.1:8000/api/roles/${id}`);
@@ -41,9 +48,13 @@ export default function Page() {
 
     // Navigate to edit role page
     const handleEdit = (id) => {
-        router.push(`/admin/roles/edit-roles?id=${id}`);
-    };
+        if (!permissions.includes('edit-role')) {
+            setError('You do not have permission to edit roles.');
+            return;
+        }
 
+        router.push(`/admin/roles/edit-role?id=${id}`);
+    };
     // Navigate to give permissions page
     const handleGivePermissions = (id) => {
         router.push(`/super-admin/roles/add-permissions?id=${id}`);
@@ -58,7 +69,7 @@ export default function Page() {
                             <div className="card-body">
                                 <div className="d-flex justify-content-between align-items-center mb-4">
                                     <h4 className="text-center">Roles List</h4>
-                                    <a href="/admin/roles/create-roles" className="btn btn-primary">Create Role</a>
+                                    {/* <a href="/admin/roles/create-roles" className="btn btn-primary">Create Role</a> */}
                                 </div>
 
                                 {error && (
@@ -90,7 +101,6 @@ export default function Page() {
                                                         <td>{index + 1}</td>
                                                         <td>{role.name}</td>
                                                         <td>
-                                                            {/* Displaying multiple permissions */}
                                                             {role.permissions && role.permissions.length > 0 ? (
                                                                 role.permissions.map((permission, permIndex) => (
                                                                     <span key={permIndex} className="badge bg-info me-1">
@@ -101,26 +111,28 @@ export default function Page() {
                                                                 <span className="text-muted">No permissions</span>
                                                             )}
                                                         </td>
-                                                        <td>
-                                                            {/* <button
-                                                                className="btn btn-sm btn-primary me-2"
-                                                                onClick={() => handleGivePermissions(role.id)}
-                                                            >
-                                                                Edit | Add Permissions
-                                                            </button> */}
-                                                            <button
-                                                                className="btn btn-sm btn-secondary me-2"
-                                                                onClick={() => handleEdit(role.id)}
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                            <button
-                                                                className="btn btn-sm btn-danger"
-                                                                onClick={() => handleDelete(role.id)}
-                                                            >
-                                                                Delete
-                                                            </button>
+                                                        <td className="text-center align-middle">
+                                                            <div className="d-flex justify-content-center align-items-center">
+                                                                {permissions.includes('edit-role') && (
+                                                                    <button
+                                                                        className="btn btn-sm btn-secondary me-2"
+                                                                        onClick={() => handleEdit(role.id)}
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                )}
+                                                                {permissions.includes('delete-role') && (
+                                                                    <button
+                                                                        className="btn btn-sm btn-danger"
+                                                                        onClick={() => handleDelete(role.id)}
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         </td>
+
+
                                                     </tr>
                                                 ))
                                             ) : (

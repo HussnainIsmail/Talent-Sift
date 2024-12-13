@@ -59,7 +59,7 @@ export default function Page() {
             });
             setSuccessMessage(response.data.message);
             setError('');
-            router.push('/super-admin/roles-list'); // Redirect to roles list after update
+            router.push('/admin/roles/role-list'); 
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setError(error.response.data.errors.name ? error.response.data.errors.name[0] : 'An unexpected error occurred.');
@@ -83,7 +83,7 @@ export default function Page() {
                                                 <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                                         <h2 className="text-center">Edit Role</h2>
-                                                        <a href="/admin/roles/roles-list" className="btn btn-primary">Role List</a>
+                                                        {/* <a href="/admin/roles/roles-list" className="btn btn-primary">Role List</a> */}
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>

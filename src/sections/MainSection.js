@@ -11,8 +11,7 @@ export default function MainSection() {
 
 
     useEffect(() => {
-        // Fetch jobs data from the API
-        axios.get('http://localhost:8000/api/jobs/show')
+        axios.get('http://localhost:8000/api/jobs')
             .then((response) => {
                 console.log("API Response:", response.data);
                 setJobs(response.data.jobs);

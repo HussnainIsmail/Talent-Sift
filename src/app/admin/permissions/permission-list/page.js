@@ -8,6 +8,7 @@ export default function PermissionList() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
+    const getpermissions = JSON.parse(localStorage.getItem('permissions')) || [];
 
     // Fetch permissions
     useEffect(() => {
@@ -17,7 +18,7 @@ export default function PermissionList() {
     const fetchPermissions = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/api/permissions');
-            setPermissions(response.data.permissions); 
+            setPermissions(response.data.permissions);
             setError('');
         } catch (error) {
             setError('Failed to fetch permissions.');
@@ -43,7 +44,7 @@ export default function PermissionList() {
 
 
     const handleEdit = (id) => {
-        router.push(`/admin/permissions/edit-permissions?id=${id}`);
+        router.push(`/admin/permissions/edit-permission?id=${id}`);
     };
 
     return (
@@ -56,7 +57,7 @@ export default function PermissionList() {
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                         <h1 className="text-center">Permission List</h1>
-                                        <a href="/admin/permissions/create-permissions" className="btn btn-primary">Create Permission</a>
+                                        {/* <a href="/admin/permissions/create-permissions" className="btn btn-primary">Create Permission</a> */}
                                     </div>
 
                                     {error && (
@@ -87,18 +88,27 @@ export default function PermissionList() {
                                                             <td>{index + 1}</td>
                                                             <td>{permission.name}</td>
                                                             <td>
-                                                                <button
-                                                                    className="btn btn-sm btn-primary me-2"
-                                                                    onClick={() => handleEdit(permission.id)}
-                                                                >
-                                                                    Edit
-                                                                </button>
-                                                                <button
-                                                                    className="btn btn-sm btn-danger"
-                                                                    onClick={() => handleDelete(permission.id)}
-                                                                >
-                                                                    Delete
-                                                                </button>
+                                                                <div className="d-flex justify-content-center align-items-center">
+                                                                    {getpermissions.includes('edit-permission') && (
+
+                                                                        <button
+                                                                            className="btn btn-sm btn-primary me-2"
+                                                                            onClick={() => handleEdit(permission.id)}
+                                                                        >
+                                                                            Edit
+                                                                        </button>
+                                                                    )}
+                                                                    {getpermissions.includes('delete-permission') && (
+
+                                                                        <button
+                                                                            className="btn btn-sm btn-danger"
+                                                                            onClick={() => handleDelete(permission.id)}
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+
                                                             </td>
                                                         </tr>
                                                     ))

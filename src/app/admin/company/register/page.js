@@ -1,5 +1,4 @@
 'use client'
-import NavBar from '@/sections/NavBar';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -62,7 +61,7 @@ export default function Page() {
                 }
             });
             alert(response.data.message);
-            router.push('/');
+            router.push('/admin/company/cv-list');
         } catch (error) {
             console.error('Company Registration Failed:', error);
             if (error.response?.data?.errors) {
@@ -77,7 +76,6 @@ export default function Page() {
 
     return (
         <div>
-            <NavBar />
             <section className="bg-light p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">

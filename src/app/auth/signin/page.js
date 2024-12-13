@@ -33,7 +33,7 @@ export default function page() {
       alert('Login successful!');
       setLoading(false);
       const role = response.data.role;
-       if (role === 'admin' || role === 'superadmin') {
+       if (role === 'admin' || role === 'super-admin'|| role === 'sub-admin') {
       router.push('/admin/dashboard');
     } else {
       router.push('/');
