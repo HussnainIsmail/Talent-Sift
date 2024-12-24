@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -16,8 +16,18 @@ export default function PermissionList() {
     }, []);
 
     const fetchPermissions = async () => {
+        const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+        if (!token) {
+            setError('Authentication token is missing. Please log in.');
+            return;
+        }
+
         try {
-            const response = await axios.get('http://127.0.0.1:8000/api/permissions');
+            const response = await axios.get('http://127.0.0.1:8000/api/permissions', {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+                },
+            });
             setPermissions(response.data.permissions);
             setError('');
         } catch (error) {
@@ -28,20 +38,27 @@ export default function PermissionList() {
     // Delete a permission
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this permission?')) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('Authentication token is missing. Please log in.');
+                return;
+            }
+
             try {
-                const response = await axios.delete(`http://127.0.0.1:8000/api/permissions/${id}`);
+                const response = await axios.delete(`http://127.0.0.1:8000/api/permissions/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 setPermissions(permissions.filter((permission) => permission.id !== id));
                 setSuccessMessage(response.data.message);
                 setError('');
             } catch (error) {
                 setSuccessMessage('');
-                setError(
-                    error.response?.data?.message || 'Failed to delete permission.'
-                );
+                setError(error.response?.data?.message || 'Failed to delete permission.');
             }
         }
     };
-
 
     const handleEdit = (id) => {
         router.push(`/admin/permissions/edit-permission?id=${id}`);
@@ -57,7 +74,6 @@ export default function PermissionList() {
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                         <h1 className="text-center">Permission List</h1>
-                                        {/* <a href="/admin/permissions/create-permissions" className="btn btn-primary">Create Permission</a> */}
                                     </div>
 
                                     {error && (
@@ -90,7 +106,6 @@ export default function PermissionList() {
                                                             <td>
                                                                 <div className="d-flex justify-content-center align-items-center">
                                                                     {getpermissions.includes('edit-permission') && (
-
                                                                         <button
                                                                             className="btn btn-sm btn-primary me-2"
                                                                             onClick={() => handleEdit(permission.id)}
@@ -99,7 +114,6 @@ export default function PermissionList() {
                                                                         </button>
                                                                     )}
                                                                     {getpermissions.includes('delete-permission') && (
-
                                                                         <button
                                                                             className="btn btn-sm btn-danger"
                                                                             onClick={() => handleDelete(permission.id)}
@@ -108,7 +122,6 @@ export default function PermissionList() {
                                                                         </button>
                                                                     )}
                                                                 </div>
-
                                                             </td>
                                                         </tr>
                                                     ))

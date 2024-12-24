@@ -7,7 +7,6 @@ import { useSearchParams } from 'next/navigation';
 export default function Page() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id'); // Get role ID from URL parameters
-    console.log(id);
     const [name, setName] = useState(''); // Store role name
     const [error, setError] = useState(''); // Error state
     const [successMessage, setSuccessMessage] = useState(''); // Success message state
@@ -21,20 +20,41 @@ export default function Page() {
 
     // Fetch role details and available permissions
     const fetchRoleAndPermissions = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('Authentication token is missing. Please log in.');
+            router.push('/login');
+            return;
+        }
+
         try {
             // Fetch role details
-            const roleResponse = await axios.get(`http://127.0.0.1:8000/api/roles/${id}/edit`);
+            const roleResponse = await axios.get(`http://127.0.0.1:8000/api/roles/${id}/edit`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setName(roleResponse.data.role.name);
 
             // Fetch all available permissions
-            const permissionsResponse = await axios.get('http://127.0.0.1:8000/api/permissions');
+            const permissionsResponse = await axios.get('http://127.0.0.1:8000/api/permissions', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setPermissions(permissionsResponse.data.permissions);
 
             // Set selected permissions based on the role's current permissions
             const rolePermissions = roleResponse.data.role.permissions.map(permission => permission.id);
             setSelectedPermissions(rolePermissions);
         } catch (error) {
-            setError('Failed to fetch role details or permissions.');
+            if (error.response?.status === 401) {
+                setError('Unauthorized access. Please log in again.');
+                localStorage.removeItem('token');
+                router.push('/auth/signin');
+            } else {
+                setError('Failed to fetch role details or permissions.');
+            }
         }
     };
 
@@ -52,10 +72,21 @@ export default function Page() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('Authentication token is missing. Please log in.');
+            router.push('/admin/roles/create-role');
+            return;
+        }
+
         try {
             const response = await axios.put(`http://127.0.0.1:8000/api/roles/${id}`, { 
                 name, 
                 permissions: selectedPermissions 
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
             setSuccessMessage(response.data.message);
             setError('');
@@ -83,7 +114,6 @@ export default function Page() {
                                                 <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                                         <h2 className="text-center">Edit Role</h2>
-                                                        {/* <a href="/admin/roles/roles-list" className="btn btn-primary">Role List</a> */}
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>

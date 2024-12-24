@@ -1,27 +1,42 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 export default function Page() {
-    const [name, setName] = useState('');
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const router = useRouter();
+    const [name, setName] = useState(''); // Permission name state
+    const [error, setError] = useState(''); // Error message state
+    const [successMessage, setSuccessMessage] = useState(''); // Success message state
+    const router = useRouter(); // Navigation router
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/permissions', {
-                name: name,
-            });
+            const token = localStorage.getItem('token'); // Retrieve token from localStorage
+            if (!token) {
+                setError('Authentication token is missing. Please log in.');
+                return;
+            }
 
-            setSuccessMessage(response.data.message);
-            setError('');
-            router.push('/admin/permissions/permission-list');
+            // Make API request to create permission
+            const response = await axios.post(
+                'http://127.0.0.1:8000/api/permissions',
+                { name },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Add token to Authorization header
+                    },
+                }
+            );
+
+            setSuccessMessage(response.data.message); // Display success message
+            setError(''); // Clear any previous errors
+            router.push('/admin/permissions/permission-list'); // Navigate to permission list
         } catch (error) {
             if (error.response && error.response.data.errors) {
+                // Handle validation errors
                 setError(error.response.data.errors.name ? error.response.data.errors.name[0] : 'An unexpected error occurred.');
             } else {
                 setError('An unexpected error occurred.');
@@ -30,9 +45,8 @@ export default function Page() {
     };
 
     return (
-        <div className=''  >
-            {/* <NavAnchor/> */}
-            <section className=" p-3 p-md-4 p-xl-5">
+        <div>
+            <section className="p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-12 col-xxl-11">
@@ -44,7 +58,6 @@ export default function Page() {
                                                 <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                                         <h4 className="text-center">Create Permission</h4>
-                                                        {/* <a href="/admin/permissions/permissions-list" className="btn btn-primary"> Permission List</a> */}
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>
@@ -65,12 +78,14 @@ export default function Page() {
                                                             </div>
                                                         </div>
 
+                                                        {/* Display error message */}
                                                         {error && (
                                                             <div className="col-12">
                                                                 <div className="alert alert-danger">{error}</div>
                                                             </div>
                                                         )}
 
+                                                        {/* Display success message */}
                                                         {successMessage && (
                                                             <div className="col-12">
                                                                 <div className="alert alert-success">{successMessage}</div>

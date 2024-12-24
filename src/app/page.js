@@ -1,17 +1,22 @@
+// D:\FYP\talent-sift\src\app\page.js
+'use client'; // Mark this file as a client component
 
-import Header from "@/sections/Header";
-import MainSection from "@/sections/MainSection";
-import NavBar from "@/sections/NavBar";
-export default function Home() {
+import React from 'react';
+import { FilterProvider } from './{frontend}/sections/FilterContext';
+import NavBar from './{frontend}/sections/NavBar';
+import Header from './{frontend}/sections/Header';
+import MainSection from './{frontend}/sections/MainSection';
+
+const App = () => {
   return (
-    <div className="">
-      {/* <div>
-        <a>name of logn user</a>
-        <a>Role oof login user sow here</a>
-      </div> */}
-      <NavBar />
-      <Header/>
-      <MainSection/>
-    </div>
+    <FilterProvider>
+      <div>
+        <NavBar />
+        <Header />
+        <MainSection />
+      </div>
+    </FilterProvider>
   );
-}
+};
+
+export default App;

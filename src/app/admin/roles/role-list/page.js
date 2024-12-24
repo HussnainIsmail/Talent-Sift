@@ -17,12 +17,28 @@ export default function Page() {
     }, []);
 
     const fetchRoles = async () => {
+        const token = localStorage.getItem('token'); // Ensure token is stored securely
+        if (!token) {
+            setError('Authentication token is missing. Please log in.');
+            return;
+        }
+
         try {
-            const response = await axios.get('http://127.0.0.1:8000/api/roles');
-            setRoles(response.data.roles); 
+            const response = await axios.get('http://127.0.0.1:8000/api/roles', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setRoles(response.data.roles);
             setError('');
         } catch (error) {
-            setError('Failed to fetch roles.');
+            if (error.response?.status === 401) {
+                setError('Unauthorized. Please log in again.');
+                localStorage.removeItem('authToken'); // Clear token on unauthorized access
+                router.push('/login'); // Redirect to login page
+            } else {
+                setError('Failed to fetch roles.');
+            }
         }
     };
 
@@ -34,8 +50,13 @@ export default function Page() {
         }
 
         if (confirm('Are you sure you want to delete this role?')) {
+            const token = localStorage.getItem('token');
             try {
-                const response = await axios.delete(`http://127.0.0.1:8000/api/roles/${id}`);
+                const response = await axios.delete(`http://127.0.0.1:8000/api/roles/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 setRoles(roles.filter((role) => role.id !== id));
                 setSuccessMessage(response.data.message);
                 setError('');
@@ -55,6 +76,7 @@ export default function Page() {
 
         router.push(`/admin/roles/edit-role?id=${id}`);
     };
+
     // Navigate to give permissions page
     const handleGivePermissions = (id) => {
         router.push(`/super-admin/roles/add-permissions?id=${id}`);
@@ -69,7 +91,6 @@ export default function Page() {
                             <div className="card-body">
                                 <div className="d-flex justify-content-between align-items-center mb-4">
                                     <h4 className="text-center">Roles List</h4>
-                                    {/* <a href="/admin/roles/create-roles" className="btn btn-primary">Create Role</a> */}
                                 </div>
 
                                 {error && (
@@ -131,8 +152,6 @@ export default function Page() {
                                                                 )}
                                                             </div>
                                                         </td>
-
-
                                                     </tr>
                                                 ))
                                             ) : (

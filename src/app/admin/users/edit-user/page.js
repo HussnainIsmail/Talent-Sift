@@ -73,22 +73,18 @@ export default function EditUserPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSuccessMessage('');  // Clear success message before submitting
-        setErrors({});  // Clear previous errors before submitting
-
-        // Check if all fields are filled
+        setSuccessMessage('');  
+        setErrors({});  
         if (!user.name || !user.email || !user.role) {
             setErrors({ general: 'All fields are required.' });
             return;
         }
-
         try {
             const token = localStorage.getItem('token');
             if (!token) {
                 setErrors({ general: 'Authentication token is missing.' });
                 return;
             }
-
             const response = await axios.put(`http://127.0.0.1:8000/api/users/update/${id}`, user, {
                 headers: {
                     'Authorization': `Bearer ${token}`,

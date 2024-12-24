@@ -4,7 +4,8 @@ import Link from 'next/link';
 import SideBar from './SideBar';
 import axios from 'axios';
 import { FaRegBookmark } from "react-icons/fa";
-import '../app/globals.css';
+import '../../../app/globals.css';
+
 
 export default function MainSection() {
     const [jobs, setJobs] = useState([]);

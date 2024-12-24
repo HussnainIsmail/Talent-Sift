@@ -18,7 +18,7 @@ export default function AdminSideBar() {
   const pathname = usePathname();
   const [openDropdowns, setOpenDropdowns] = useState([]);
   const [role, setRole] = useState(null);
-  const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
+  const permissions = JSON.parse(localStorage.getItem("permissions") || "[]");
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
@@ -35,7 +35,7 @@ export default function AdminSideBar() {
 
   const dropdownLinks = {
     Users: [
-      { label: "Users List", path: "/admin/users/user-list" },
+      { label: "User List", path: "/admin/users/user-list" },
       { label: "Edit User", path: "/admin/users/edit-user" },
     ],
     Roles: [
@@ -48,27 +48,27 @@ export default function AdminSideBar() {
       { label: "Create Permission", path: "/admin/permissions/create-permission" },
       { label: "Edit Permission", path: "/admin/permissions/edit-permission" },
     ],
-
-    // Added Company dropdown
     Company: [
       { label: "Register", path: "/admin/company/register" },
+      { label: "Regester companies", path: "/admin/company/register-companies" },
+    ],
+    Resume: [
+      { label: "Resume List", path: "/admin/resume/resume-list" },
     ],
     Jobs: [
       { label: "Job List", path: "/admin/jobs/job-list" },
       { label: "Create Job", path: "/admin/jobs/create-job" },
       { label: "Edit Job", path: "/admin/jobs/edit-job" },
-      { label: "CV List", path: "/admin/jobs/cv-list" },
-
-    ]
+    ],
   };
 
-  // Mapping icons to each dropdown
   const dropdownIcons = {
     Users: FaUsers,
     Roles: FaKey,
     Permissions: FaClipboardList,
     Jobs: FaBriefcase,
-    Company: FaBuilding, // Icon for the Company dropdown
+    Company: FaBuilding,
+    Resume: FaClipboardList, // Fallback icon for Resume
   };
 
   const toggleDropdown = (dropdown) => {
@@ -80,7 +80,7 @@ export default function AdminSideBar() {
   };
 
   if (!role || role === "user") {
-    return null; // Prevent rendering the sidebar before redirecting
+    return null;
   }
 
   return (
@@ -89,7 +89,7 @@ export default function AdminSideBar() {
       style={{
         borderColor: "#ddd",
         height: "100vh",
-        overflowY: "auto", // Enables vertical scrolling
+        overflowY: "auto",
       }}
     >
       <div className="d-flex justify-content-center align-items-center pt-3">
@@ -122,12 +122,12 @@ export default function AdminSideBar() {
               return null;
             }
           }
-
-          // Hide "Roles" and "Permissions" if role is "sub-admin"
           if (role === "sub-admin" && (dropdown === "Roles" || dropdown === "Permissions")) {
             return null;
           }
-
+          if (role === "super-admin" && (dropdown === "Company" || dropdown === "Resume")) {
+            return null;
+          }
           const DropdownIcon = dropdownIcons[dropdown];
 
           return (
@@ -149,10 +149,38 @@ export default function AdminSideBar() {
                 >
                   {dropdownLinks[dropdown]
                     .filter(({ label }) => {
+                      if (label === "User List" && !permissions.includes("show-users")) {
+                        return false;
+                      }
+                      if (label === "Edit User" && !permissions.includes("edit-user")) {
+                        return false;
+                      }
                       if (label === "Create Role" && !permissions.includes("create-role")) {
                         return false;
                       }
+                      if (label === "Edit Role" && !permissions.includes("edit-role")) {
+                        return false;
+                      }
+                        if (label === "Roles List" && !permissions.includes("show-roles")) {
+                        return false;
+                      }
                       if (label === "Create Permission" && !permissions.includes("create-permission")) {
+                        return false;
+                      }
+                      if (label === "Edit Permission" && !permissions.includes("edit-permission")) {
+                        return false;
+                      }
+                      if (label === "Permission List" && !permissions.includes("show-permissions")) {
+                        return false;
+                      }
+
+                      if (label === "Register" && !permissions.includes("register-companie")) {
+                        return false;
+                      }
+                      if (label === "Regester companies" && !permissions.includes("show-companies")) {
+                        return false;
+                      }
+                      if (label === "Resume List" && !permissions.includes("show-resumes")) {
                         return false;
                       }
                       return true;

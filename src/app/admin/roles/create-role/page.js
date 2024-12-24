@@ -7,21 +7,48 @@ export default function CreateRolePage() {
     const [name, setName] = useState('');
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const router = useRouter();
     const [permissions, setPermissions] = useState([]);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         fetchPermissions();
     }, []);
 
+    useEffect(() => {
+        if (successMessage || error) {
+            const timer = setTimeout(() => {
+                setSuccessMessage('');
+                setError('');
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage, error]);
+
     const fetchPermissions = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/api/permissions');
-            setPermissions(response.data.permissions);
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://127.0.0.1:8000/api/permissions', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setPermissions(response.data.permissions || []);
             setError('');
-        } catch {
-            setError('Failed to fetch permissions.');
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    router.push('/login');
+                } else if (error.response.status === 403) {
+                    setError('You do not have permission to view this resource.');
+                } else {
+                    setError('Failed to fetch permissions.');
+                }
+            } else {
+                setError('An unexpected error occurred while fetching permissions.');
+            }
         }
     };
 
@@ -35,14 +62,24 @@ export default function CreateRolePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/roles', {
-                name,
-                permissions: selectedPermissions,
-            });
-
+            const token = localStorage.getItem('token');
+            const response = await axios.post(
+                'http://127.0.0.1:8000/api/roles',
+                {
+                    name,
+                    permissions: selectedPermissions,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             setSuccessMessage(response.data.message);
-            setError('');
+            setName('');
+            setSelectedPermissions([]);
             router.push('/admin/roles/role-list');
         } catch (error) {
             if (error.response && error.response.data.errors) {
@@ -50,6 +87,8 @@ export default function CreateRolePage() {
             } else {
                 setError('An unexpected error occurred.');
             }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -86,27 +125,36 @@ export default function CreateRolePage() {
 
                                                     <div className="col-12">
                                                         <label className="form-label">Assign Permissions</label>
-                                                        <div className="row">
-                                                            {permissions.map((permission) => (
-                                                                <div className="col-6 col-md-4" key={permission.id}>
-                                                                    <div className="form-check">
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            id={`permission-${permission.id}`}
-                                                                            className="form-check-input"
-                                                                            value={permission.id}
-                                                                            onChange={() => handleCheckboxChange(permission.id)}
-                                                                        />
-                                                                        <label
-                                                                            htmlFor={`permission-${permission.id}`}
-                                                                            className="form-check-label"
-                                                                        >
-                                                                            {permission.name}
-                                                                        </label>
+                                                        {permissions.length > 0 ? (
+                                                            <div className="row">
+                                                                {permissions.map((permission) => (
+                                                                    <div className="col-6 col-md-4" key={permission.id}>
+                                                                        <div className="form-check">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                id={`permission-${permission.id}`}
+                                                                                className="form-check-input"
+                                                                                value={permission.id}
+                                                                                onChange={() =>
+                                                                                    handleCheckboxChange(permission.id)
+                                                                                }
+                                                                                checked={selectedPermissions.includes(
+                                                                                    permission.id
+                                                                                )}
+                                                                            />
+                                                                            <label
+                                                                                htmlFor={`permission-${permission.id}`}
+                                                                                className="form-check-label"
+                                                                            >
+                                                                                {permission.name}
+                                                                            </label>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <p>No permissions available.</p>
+                                                        )}
                                                     </div>
 
                                                     {error && (
@@ -122,8 +170,12 @@ export default function CreateRolePage() {
                                                     )}
 
                                                     <div className="col-12 text-center">
-                                                        <button type="submit" className="btn btn-primary">
-                                                            Submit
+                                                        <button
+                                                            type="submit"
+                                                            className="btn btn-primary"
+                                                            disabled={isSubmitting}
+                                                        >
+                                                            {isSubmitting ? 'Submitting...' : 'Submit'}
                                                         </button>
                                                     </div>
                                                 </div>

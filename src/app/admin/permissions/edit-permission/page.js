@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function page() {
+export default function Page() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
-    console.log (id);
+    console.log(id);
+
     const [name, setName] = useState('');
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -20,8 +21,18 @@ export default function page() {
 
     // Fetch the permission details
     const fetchPermission = async () => {
+        const token = localStorage.getItem('token'); // Retrieve token from localStorage
+        if (!token) {
+            setError('Authentication token is missing. Please log in.');
+            return;
+        }
+
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/permissions/${id}/edit`);
+            const response = await axios.get(`http://127.0.0.1:8000/api/permissions/${id}/edit`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Add token to the Authorization header
+                },
+            });
             setName(response.data.permission.name);
         } catch (error) {
             setError('Failed to fetch permission details.');
@@ -31,11 +42,25 @@ export default function page() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const token = localStorage.getItem('token'); // Retrieve token from localStorage
+        if (!token) {
+            setError('Authentication token is missing. Please log in.');
+            return;
+        }
+
         try {
-            const response = await axios.put(`http://127.0.0.1:8000/api/permissions/${id}`, { name });
+            const response = await axios.put(
+                `http://127.0.0.1:8000/api/permissions/${id}`,
+                { name },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Add token to the Authorization header
+                    },
+                }
+            );
             setSuccessMessage(response.data.message);
             setError('');
-            router.push('/admin/permissions/permission-list'); 
+            router.push('/admin/permissions/permission-list');
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setError(error.response.data.errors.name ? error.response.data.errors.name[0] : 'An unexpected error occurred.');
@@ -56,10 +81,9 @@ export default function page() {
                                     <div className="col-12 d-flex align-items-center justify-content-center">
                                         <div className="col-12 col-lg-11 col-xl-10">
                                             <div className="card-body p-3 p-md-4 p-xl-5">
-                                            <div className="row">
+                                                <div className="row">
                                                     <div className="d-flex justify-content-between align-items-center mb-4">
                                                         <h4 className="text-center">Create Permission</h4>
-                                                        {/* <a href="/super-admin/permissions-list" className="btn btn-primary"> Permission List</a> */}
                                                     </div>
                                                 </div>
                                                 <form onSubmit={handleSubmit}>

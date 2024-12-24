@@ -41,7 +41,7 @@ export default function Page() {
         setLoading(false);
       }
     };
-     
+
     const token = localStorage.getItem('token');
 
     fetchJobs();
@@ -52,7 +52,11 @@ export default function Page() {
     // Navigate to the edit job page
     router.push(`/admin/jobs/edit-job?id=${id}`);
   };
-
+  // Handle View Resume List
+  const handleViewResumeList = (id) => {
+    // Navigate to the resume list page with the job ID
+    router.push(`/admin/resume/resume-list?jobId=${id}`);
+  };
   // Handle Delete Job
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this job?")) {
@@ -109,6 +113,7 @@ export default function Page() {
                           <th>#</th>
                           <th>Job Title</th>
                           <th>Description</th>
+                          <th>View Resume for each job</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -118,6 +123,14 @@ export default function Page() {
                             <td>{index + 1}</td>
                             <td>{job.jobtitle}</td>
                             <td>{job.description}</td>
+                            <td>
+                              <button
+                                className="btn btn-sm btn-primary me-2"
+                                onClick={() => handleViewResumeList(job.id)}
+                              >
+                                View Resume List
+                              </button>
+                            </td>
                             <td>
                               <button
                                 className="btn btn-sm btn-primary me-2"
