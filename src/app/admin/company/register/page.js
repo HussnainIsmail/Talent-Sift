@@ -61,7 +61,7 @@ export default function Page() {
                 }
             });
             alert(response.data.message);
-            router.push('/admin/company/cv-list');
+            router.push('/admin/resume/resume-list');
         } catch (error) {
             console.error('Company Registration Failed:', error);
             if (error.response?.data?.errors) {

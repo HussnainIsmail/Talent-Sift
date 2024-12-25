@@ -1,29 +1,51 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SideBar from './SideBar';
 import axios from 'axios';
 import { FaRegBookmark } from "react-icons/fa";
+import Pusher from 'pusher-js';
 import '../../../app/globals.css';
-
 
 export default function MainSection() {
     const [jobs, setJobs] = useState([]);
 
-
     useEffect(() => {
-        axios.get('http://localhost:8000/api/jobs/show')
-            .then((response) => {
+        // Fetch initial jobs when the component mounts
+        const fetchJobs = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/jobs/show');
                 console.log("API Response:", response.data);
-                setJobs(response.data.jobs);
-            })
-            .catch((error) => {
+                setJobs(response.data.jobs); // Update state with fetched jobs
+            } catch (error) {
                 console.error("Error fetching jobs:", error);
-            });
-    }, []);
+            }
+        };
+
+        fetchJobs(); 
+    
+        // Set up Pusher to listen for job posts
+        const pusher = new Pusher('68d431386799dc1b76cd', {
+            cluster: 'ap2',
+        });
+
+        const channel = pusher.subscribe('jobs');
+        
+        // Listen for the 'job-posted' event
+        channel.bind('job-posted', function(data) {
+            // Here, `data` contains the new job information
+            console.log('New job posted:', data.job);
+            setJobs(prevJobs => [data.job, ...prevJobs]);  // Prepend the new job to the jobs list
+        });
+
+        // Cleanup the Pusher subscription on component unmount
+        return () => {
+            pusher.unsubscribe('jobs');
+        };
+    }, []);  // Empty dependency array ensures this runs only once on mount
 
     return (
-        <div className="d-flex flex-column flex-md-row">
+        <div className="d-flex flex-column flex-md-row" style={{ backgroundColor: '#F8F9FA', minHeight: '100vh' }}>
             {/* Sidebar Section */}
             <SideBar />
             {/* Main Content Section */}
@@ -41,65 +63,52 @@ export default function MainSection() {
                         </a>
                     </div>
 
-                    {/* Card Grid */}
+                    {/* Job Cards Grid */}
                     <div className="row">
-                        {jobs.map((job) => (
-                            <div key={job.id} className="col-12 col-md-4 col-xl-4 mb-4">
-                                {/* Card */}
-                                <div className="card shadow-sm border-1 h-100 rounded-4 bg-white p-1">
-                                    <div className="card-body p-0">
-                                        {/* First Section */}
-                                        <div className="rounded-4 p-2" style={{ backgroundColor: '#ffe1cc' }}>
-                                            <div className="p-1">
-                                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                                    <span className="text-black small border border-0 rounded-pill px-2 py-1 bg-white">{job.created_at.slice(0, 10)}</span>
-                                                    <FaRegBookmark className="me-1" />
-                                                </div>
-
-                                                <h6 className="fw-semibold m-0">{job.companyName}</h6>
-                                                <div className="d-flex justify-content-center align-items-center mb-3">
-                                                    <div className="col-8 d-flex align-items-center">
-                                                        <p className="fw-bold text-truncate-2-lines mb-0">
-                                                            {job.jobtitle}
-                                                        </p>
-                                                    </div>
-                                                    <div className="ms-auto">
-                                                        <img src={job.image} alt="" className="rounded-pill" width="25" height="25" />
-                                                    </div>
-                                                </div>
-                                                <div className="d-flex flex-wrap gap-1">
-                                                    {(job.job_types || []).map((type, index) => (
-                                                        <div key={index} className="border border-dark rounded-pill text-center px-2 pb-1 d-inline-block">
-                                                            <small className="d-inline-block text-center" style={{ color: '#87786e', fontWeight: '400', fontSize: '12px' }}>
-                                                                {type.type}
-                                                            </small>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                        {jobs.length === 0 ? (
+                            <p>No jobs available</p> // Show a message if no jobs are available
+                        ) : (
+                            jobs.map((job) => (
+                                <div key={job.id} className="col-12 col-md-4 col-xl-4 mb-4">
+                                    {/* Job Card */}
+                                    <div className="card shadow-sm border-0 h-100 rounded-4 bg-white p-3">
+                                        {/* Card Header */}
+                                        <div className="rounded-4 p-3" style={{ backgroundColor: '#F1F3F5' }}>
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <span className="text-muted small">{job.created_at.slice(0, 10)}</span>
+                                                <FaRegBookmark className="text-muted" />
+                                            </div>
+                                            <h6 className="fw-bold text-primary mb-1">{job.companyName}</h6>
+                                            <h5 className="fw-semibold text-black text-truncate mb-2">{job.jobtitle}</h5>
+                                            <div className="d-flex flex-wrap gap-1">
+                                                {(job.job_types || []).map((type, index) => (
+                                                    <span key={index} className="badge rounded-pill bg-secondary text-white">
+                                                        {type.type}
+                                                    </span>
+                                                ))}
                                             </div>
                                         </div>
-                                        {/* Second Section */}
-                                        <div className="p-2">
-                                            <div className="d-flex justify-content-between align-items-center p-2">
+                                        {/* Card Content */}
+                                        <div className="p-3">
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <div>
-                                                    <p className="fw-bold mb-0">${job.minSalary}-${job.maxSalary}</p>
-                                                    <span className="text-muted small"> {(job.work_locations || []).map((loc, index) => (
-                                                        <div key={index} className="border border-dark rounded-pill text-center px-2 pb-1 d-inline-block">
-                                                            <small className="d-inline-block text-center" style={{ color: '#87786e', fontWeight: '400', fontSize: '12px' }}>
+                                                    <p className="fw-normal text-dark mb-0" style={{ fontSize: '14px' }}>
+                                                        ${job.minSalary}-${job.maxSalary}
+                                                    </p>
+                                                    <small className="text-muted">
+                                                        {(job.work_locations || []).map((loc, index) => (
+                                                            <span key={index} className="badge rounded-pill bg-light text-dark border me-1">
                                                                 {loc.location}
-                                                            </small>
-                                                        </div>
-                                                    ))}
-                                                    </span>
+                                                            </span>
+                                                        ))}
+                                                    </small>
                                                 </div>
                                                 <Link
                                                     href={{
                                                         pathname: '/users/job-details',
-                                                        query: {
-                                                            id: job.id,
-                                                        },
+                                                        query: { id: job.id },
                                                     }}
-                                                    className="btn btn-sm text-white bg-black rounded-pill text-decoration-none"
+                                                    className="btn btn-sm text-white bg-primary rounded-pill text-decoration-none px-3"
                                                 >
                                                     Details
                                                 </Link>
@@ -107,8 +116,8 @@ export default function MainSection() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
