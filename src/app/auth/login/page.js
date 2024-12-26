@@ -33,7 +33,7 @@ export default function page() {
       alert('Login successful!');
       setLoading(false);
       const role = response.data.role;
-       if (role === 'admin' || role === 'super-admin'|| role === 'sub-admin') {
+       if (role === 'admin' || role === 'super-admin'|| role === 'recuriter') {
       router.push('/admin/dashboard');
     } else {
       router.push('/');
@@ -133,7 +133,7 @@ export default function page() {
                         <p className="mt-4 text-center">
                           Don't have an account?{' '}
                           <a
-                            href="/signup"
+                            href="/auth/signup"
                             className="link-primary text-decoration-none"
                           >
                             Sign Up

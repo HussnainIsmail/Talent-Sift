@@ -1,8 +1,8 @@
 "use client";
 import { IoNotificationsOutline } from "react-icons/io5";
 import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap CSS is imported
-import 'bootstrap/dist/js/bootstrap.bundle';  // Ensure Bootstrap JS is imported
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle';
 import '../../../app/globals.css';
 
 
@@ -20,18 +20,18 @@ export default function NavBar() {
         console.log('Token removed');
       }
       if (role) {
-        localStorage.removeItem('role');
+        localStorage.removeItem('role', 'name', 'token');
         console.log('Role removed');
       }
-  
+
       // Redirect to the login/signup page
-      window.location.href = '/auth/signin';
+      window.location.href = '/auth/login';
     } catch (error) {
       console.error('Error during logout:', error);
     }
   };
-  
-  
+
+
 
 
 
@@ -102,7 +102,7 @@ export default function NavBar() {
                     ></span>
                   </a>
                   {/* Use dropdown-menu-end to align the dropdown to the left */}
-                 
+
                 </div>
                 {/* Notification Icon */}
                 <div className="position-relative">
@@ -187,6 +187,11 @@ export default function NavBar() {
             <div className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 d-none d-md-flex">
               <div className="d-flex align-items-center gap-3">
                 {/* Profile Dropdown for Larger Screens */}
+                <div className="position-relative">
+                  <li>
+                    <a className="text-white" href="/admin/dashboard">Dashbaord</a>
+                  </li>
+                </div>
                 <div className="dropdown">
                   <a
                     className="profile-icon"
@@ -223,16 +228,16 @@ export default function NavBar() {
                   {/* Use dropdown-menu-end to align the dropdown to the left */}
                   <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                     <li>
-                      <a className="dropdown-item" href="/profile">User Profile</a>
+                      <a className="dropdown-item" href="/profile/profile">User Profile</a>
                     </li>
                     <li>
-                       <a
-                          className="dropdown-item"
-                          href="#"
-                          onClick={handleLogout} // Add onClick event to logout
-                        >
-                          Sign Out
-                        </a>
+                      <a
+                        className="dropdown-item"
+                        href="#"
+                        onClick={handleLogout} // Add onClick event to logout
+                      >
+                        Log Out
+                      </a>
                     </li>
                   </ul>
                 </div>

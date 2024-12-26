@@ -50,7 +50,7 @@ export default function AdminSideBar() {
     ],
     Company: [
       { label: "Register", path: "/admin/company/register" },
-      { label: "Regester companies", path: "/admin/company/register-companies" },
+      { label: "Company List", path: "/admin/company/company-list" },
     ],
     Resume: [
       { label: "Resume List", path: "/admin/resume/resume-list" },
@@ -122,7 +122,7 @@ export default function AdminSideBar() {
               return null;
             }
           }
-          if (role === "sub-admin" && (dropdown === "Roles" || dropdown === "Permissions")) {
+          if (role === "recuriter" && (dropdown === "Roles" || dropdown === "Permissions")) {
             return null;
           }
           if (role === "super-admin" && (dropdown === "Company" || dropdown === "Resume")) {
@@ -177,9 +177,9 @@ export default function AdminSideBar() {
                       if (label === "Register" && !permissions.includes("register-company")) {
                         return false;
                       }
-                      if (label === "Regester companies" && !permissions.includes("show-companies")) {
-                        return false;
-                      }
+                      // if (label === "Company List" && !permissions.includes("show-companies")) {
+                      //   return false;
+                      // }
                       if (label === "Resume List" && !permissions.includes("show-resumes")) {
                         return false;
                       }

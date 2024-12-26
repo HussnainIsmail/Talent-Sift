@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -15,9 +15,13 @@ export default function Page() {
         image: null,
         minSalary: '',
         maxSalary: '',
-        jobLevel: []
+        jobLevel: [],
+        company: ''
     });
     const [errors, setErrors] = useState({});
+    const [companies, setCompanies] = useState([]);
+    const [dropdownVisible, setDropdownVisible] = useState(false);
+    const [filteredCompanies, setFilteredCompanies] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const token = localStorage.getItem('token');
@@ -26,6 +30,46 @@ export default function Page() {
         setLoading(false);
         return;
       } 
+    //   fetch api comapnies
+    const fetchCompanies = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:8000/api/companies', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log('Companies API Response:', response.data);
+            setCompanies(response.data.data);
+            setFilteredCompanies(response.data.data); // Initialize filtered companies
+        } catch (error) {
+            console.error('Error fetching companies:', error);
+            setErrors({ general: 'Failed to load companies.' });
+        }
+    };
+
+    useEffect(() => {
+        fetchCompanies();
+    }, []);
+
+    // Handle input field
+    const handleInputChange = (e) => {
+        const inputValue = e.target.value;
+        setFormData({ ...formData, company: inputValue });
+        setFilteredCompanies(
+            companies.filter((company) =>
+                company.company_name.toLowerCase().includes(inputValue.toLowerCase())
+            )
+        );
+        setDropdownVisible(true); // Show dropdown while typing
+    };
+    const handleCompanySelect = (companyName) => {
+        setFormData({ ...formData, company: companyName });
+        setDropdownVisible(false); // Hide dropdown after selection
+    };
+    const toggleDropdown = () => {
+        setDropdownVisible(!dropdownVisible);
+    };
+
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
 
@@ -72,7 +116,7 @@ export default function Page() {
         formDataToSend.append('jobtitle', formData.jobtitle);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('description', formData.description);
-
+        formDataToSend.append('company', formData.company); // Add selected company name
         // Append array values for jobType, workLocation, and jobLevel
         formData.jobType.forEach(job => formDataToSend.append('jobType[]', job));
         formData.workLocation.forEach(location => formDataToSend.append('workLocation[]', location));
@@ -89,6 +133,10 @@ export default function Page() {
         // Append salary information
         formDataToSend.append('minSalary', formData.minSalary);
         formDataToSend.append('maxSalary', formData.maxSalary);
+        
+        formDataToSend.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+        });
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/store', formDataToSend, {
@@ -221,6 +269,51 @@ export default function Page() {
                                                                 <label htmlFor="description">About the job</label>
                                                             </div>
                                                         </div>
+
+
+                                                        <div className="mb-3 position-relative">
+                <label htmlFor="company" className="form-label">Company</label>
+                <div className="input-group">
+                    <input
+                        type="text"
+                        id="company"
+                        value={formData.company}
+                        onChange={handleInputChange}
+                        className="form-control"
+                        placeholder="Type or select a company..."
+                    />
+                    <button
+                        type="button"
+                        onClick={toggleDropdown}
+                        className="btn btn-outline-secondary"
+                    >
+                        ▼
+                    </button>
+                </div>
+                {dropdownVisible && (
+                    <ul
+                        className="list-group position-absolute w-100 mt-1"
+                        style={{
+                            maxHeight: '150px',
+                            overflowY: 'auto',
+                            background: '#fff',
+                            zIndex: 1000
+                        }}
+                    >
+                        {filteredCompanies.map((company) => (
+                            <li
+                                key={company.id}
+                                onClick={() => handleCompanySelect(company.company_name)}
+                                className="list-group-item list-group-item-action"
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {company.company_name}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
 
                                                         {/* Job Type Checkbox */}
                                                         <div className="col-12 col-md-6">

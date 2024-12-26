@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useSearchParams } from 'next/navigation'; // Using useSearchParams
-import { useRouter } from 'next/navigation';  // Using useRouter in app dir
+import { useSearchParams } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 export default function JobApplicationsPage() {
     const searchParams = useSearchParams();
@@ -14,41 +14,41 @@ export default function JobApplicationsPage() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-    
         if (!token) {
             setError('Token not found. Please log in again.');
             return;
         }
-    
-        axios.get(`http://127.0.0.1:8000/api/jobs/${id}`, {
+
+        if (!id) {
+            setError('Job ID not found.');
+            return;
+        }
+
+        // Make an authenticated request to fetch job applications for the specific job
+        axios.get(`http://127.0.0.1:8000/api/jobs/${id}/applications`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         })
         .then((response) => {
-            const data = response.data;
-            setEmployeeName(data.employeeName);
-            setJobName(data.jobName);
-            setCompanyName(data.companyName);
-            setCompanyLocation(data.companyLocation);
-            setCompanyAddress(data.companyAddress);
-            setCompanyContact(data.companyContact);
+            const { job_applications } = response.data;
+            console.log(job_applications);  // Debug: log the response data
+            setJobApplications(job_applications);
             setLoading(false);
         })
         .catch((error) => {
-            setError(error.message);
+            console.error(error);  // Debug: log any error
+            setError('Failed to fetch job applications.');
             setLoading(false);
         });
     }, [id]);
-    
 
-    const handleSendEmail = (id) => {
-        // Navigate to the desired path with the application ID and email
-        window.location.href = `/admin/resume/email?applicationId=&jobId=${id}`;
+    const handleSendEmail = (applicationId) => {
+        window.location.href = `/admin/resume/email?applicationId=${applicationId}&jobId=${id}`;
     };
 
-    const handleReject = (id) => {
-        alert(`Reject Job Application with ID: ${id}`);
+    const handleReject = (applicationId) => {
+        alert(`Reject Job Application with ID: ${applicationId}`);
     };
 
     const handleDownload = (filename) => {
@@ -96,7 +96,7 @@ export default function JobApplicationsPage() {
                                         <td className="text-center align-middle">
                                             <button
                                                 className="btn btn-success btn-sm me-2"
-                                                onClick={() => handleSendEmail(id)}  // Pass both application ID and email
+                                                onClick={() => handleSendEmail(application.id)}
                                             >
                                                 Send Email
                                             </button>
@@ -121,5 +121,5 @@ export default function JobApplicationsPage() {
                 </div>
             </div>
         </div>
-    );
+    ); 
 }

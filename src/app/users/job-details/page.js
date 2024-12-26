@@ -14,19 +14,16 @@ export default function Page() {
     const [selectedJob, setSelectedJob] = useState(null);
 
     useEffect(() => {
-        // Fetching jobs data
         axios.get('http://localhost:8000/api/jobs/show')
             .then((response) => {
                 const fetchedJobs = response.data.jobs;
                 setJobs(fetchedJobs);
 
-                // If no `id` in query params, set the first job's id in the URL
                 if (!id && fetchedJobs.length > 0) {
                     const firstJobId = fetchedJobs[0].id;
                     router.push(`?id=${firstJobId}`);
                     setSelectedJob(fetchedJobs[0]);
                 } else {
-                    // Set the job matching the `id` in query params as selected
                     const selected = fetchedJobs.find(job => job.id === parseInt(id));
                     setSelectedJob(selected || fetchedJobs[0]);
                 }
@@ -35,13 +32,9 @@ export default function Page() {
                 console.error("Error fetching jobs:", error);
             });
     }, [id, router]);
-
-    // Reorder jobs to ensure the selected job comes to the top
     const sortedJobs = jobs.filter(job => job.id === parseInt(id))
         .concat(jobs.filter(job => job.id !== parseInt(id)));
-
     useEffect(() => {
-        // Ensure the selected job ID is updated when the URL ID changes
         if (id) {
             const selected = jobs.find(job => job.id === parseInt(id));
             setSelectedJob(selected);
@@ -106,43 +99,44 @@ export default function Page() {
                     </div>
 
                     {/* Main Content Area */}
-                    <div className=" col-md-6 col-sm-12 bg-white rounded-start px-3">
+                    <div className="col-md-6 col-sm-12 bg-white rounded-start px-3">
                         {selectedJob ? (
                             <div className="row flex-column">
                                 <div className="col-12 border-bottom py-1">
                                     <div className="row p-3 d-flex justify-content-between">
-                                        <div className="col-6  d-flex ">
+                                        <div className="col-6 d-flex">
                                             <h5 className="fw-bold d-flex align-items-center m-0">{selectedJob.jobtitle}</h5>
                                         </div>
-                                        <div className="col-6 d-flex flex-wrap">
-                                            <span className="px-2 py-1 mx-1 border border-1 rounded">Expert</span>
-                                            <span className="px-2 py-1 mx-1 border border-1 rounded">Intern</span>
-                                            <span className="px-2 py-1 mx-1 border border-1 rounded">Remote</span>
+                                        <div className="col-6 d-flex flex-wrap gap-1">
+                                            {(selectedJob.job_types || []).slice(0, 4).map((type, index) => (
+                                                <span key={index} className="badge rounded-pill bg-secondary text-white">
+                                                    {type.type}
+                                                </span>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-12 ">
-                                    <div className="p-3 ">
-                                        <h5 className='pt-2 fw-bold'>About The Job</h5>
-                                        <p className='p-2'>{selectedJob.description}</p>
-                                        <h5 className='py-2 fw-bold'>Responsibilities</h5>
-                                        <ul >
-                                        <li>Develop and maintain web applications</li>
-                                        <li>Collaborate with cross-functional teams</li>
-                                        <li>Write clean, efficient, and testable code</li>
-                                    </ul>
+                                <div className="col-12">
+                                    <div className="p-3">
+                                        <h5 className="pt-2 fw-bold">About The Job</h5>
+                                        <p className="p-2">{selectedJob.description}</p>
+                                        <h5 className="py-2 fw-bold">Responsibilities</h5>
+                                        <ul>
+                                            <li>Develop and maintain web applications</li>
+                                            <li>Collaborate with cross-functional teams</li>
+                                            <li>Write clean, efficient, and testable code</li>
+                                        </ul>
                                     </div>
                                 </div>
-
-                                <div className="col-12 ">
-                                    <div className="p-3 ">
-                                        <h5 className='pb-3 fw-bold'>Required Skills</h5>
+                                <div className="col-12">
+                                    <div className="p-3">
+                                        <h5 className="pb-3 fw-bold">Required Skills</h5>
                                         <div className="d-flex flex-wrap gap-2">
-                                        <span className="skill-item px-3 py-1 border rounded">ReactJS</span>
-                                        <span className="skill-item px-3 py-1 border rounded">Node.js</span>
-                                        <span className="skill-item px-3 py-1 border rounded">JavaScript (ES6+)</span>
-                                        <span className="skill-item px-3 py-1 border rounded">HTML/CSS</span>
-                                    </div>
+                                            <span className="skill-item px-3 py-1 border rounded">ReactJS</span>
+                                            <span className="skill-item px-3 py-1 border rounded">Node.js</span>
+                                            <span className="skill-item px-3 py-1 border rounded">JavaScript (ES6+)</span>
+                                            <span className="skill-item px-3 py-1 border rounded">HTML/CSS</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -151,66 +145,82 @@ export default function Page() {
                         )}
                     </div>
 
+
                     {/* Third Column: Company Info and Other Info */}
                     <div className="col-md-3 bg-white border border-left d-none d-sm-block rounded-end">
-                        <div className="row flex-column px-2">
-                            <div className="border-bottom bg-white d-none d-sm-block">
-                                <div className="d-flex align-items-center justify-content-between py-3">
-                                    <h5 className='fw-bold'>{selectedJob?.companyName}</h5>
-                                    <img src="/assets/cardlogo.jpg" alt="Company Logo" className="me-2" style={{ width: '30px', height: '30px' }} />
+                        {selectedJob ? (
+                            <div className="row flex-column px-2 py-1">
+                                {/* Job Details Section */}
+                                <div className="border-bottom bg-white d-block d-md-flex flex-column flex-md-row align-items-md-center justify-content-between py-3">
+                                    <h5 className="fw-bold text-center text-md-start mb-md-0">
+                                        {selectedJob?.company?.company_name.slice(0, 20)}
+                                    </h5>
+                                    <img
+                                        src="/assets/cardlogo.jpg"
+                                        alt="Company Logo"
+                                        className="me-md-2 mx-auto mx-md-0"
+                                        style={{ width: '30px', height: '27px' }}
+                                    />
                                 </div>
-                                <div className="d-flex flex-column justify-content-around mt-3">
-                                    <div className="mb-2">
-                                        <h6 className='fw-bold'>Foundation</h6>
-                                        <p>{selectedJob?.foundationDate}</p>
-                                    </div>
-                                    <div>
-                                        <h6 className='fw-bold'>Location</h6>
-                                        <p>{selectedJob?.location}</p>
+                                <div className="bg-white mt-3">
+                                    <div className="mt-3">
+                                        <div className="mb-2">
+                                            <h5 className="fw-bold">Foundation Date</h5>
+                                            <p>{selectedJob?.company?.company_foundation_date}</p>
+                                        </div>
+                                        <div>
+                                            <h5 className="fw-bold">Location</h5>
+                                            <p>{selectedJob?.company?.company_location}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="bg-white d-none d-sm-block">
-                                <div className="pt-3">
-                                    <h5 className='fw-bold'>Other Information</h5>
-                                    <div className="d-flex">
-                                        <span className="text-warning">&#9733;</span>
-                                        <span className="text-warning">&#9733;</span>
-                                        <span className="text-warning">&#9733;</span>
-                                        <span className="text-warning">&#9733;</span>
-                                        <span className="text-muted">&#9733;</span>
+                                {/* Other Information Section */}
+                                <div className="bg-white mt-3">
+                                    <div className="pt-3">
+                                        <h5 className="fw-bold">Other Information</h5>
+                                        <div className="d-flex flex-wrap">
+                                            <span className="text-warning">&#9733;</span>
+                                            <span className="text-warning">&#9733;</span>
+                                            <span className="text-warning">&#9733;</span>
+                                            <span className="text-warning">&#9733;</span>
+                                            <span className="text-muted">&#9733;</span>
+                                        </div>
+                                        <h6 className="mt-2">Payment Verified</h6>
+                                        <p>Yes</p>
+                                        <h6>65+ Spend</h6>
+                                        <p>$1000+</p>
                                     </div>
-                                    <h6>Payment Verified</h6>
-                                    <p>Yes</p>
-                                    <h6>65+ Spend</h6>
-                                    <p>$1000+</p>
                                 </div>
-                            </div>
 
-                            <div className="bg-white d-none d-sm-block">
-                                <div className="pt-3">
-                                    <h5 className='fw-bold'>Services</h5>
-                                    <div className="d-flex flex-wrap gap-2">
-                                        <span className="border px-2 rounded">Backend</span>
-                                        <span className="border px-2 rounded">Frontend</span>
-                                        <span className="border px-2 rounded">WordPress</span>
-                                    </div>
-                                    <div className="d-flex mx-3 justify-content-center mt-4">
-                                        <Link
-                                            href={{
-                                                pathname: '/users/Apply',
-                                                query: { id: id },
-                                            }}
-                                            className="btn py-2 btn-primary rounded-pill w-100 text-center hover-bg-dark hover-text-white"
-                                        >
-                                            Apply
-                                        </Link>
+                                {/* Services Section */}
+                                <div className="bg-white mt-3">
+                                    <div className="pt-3">
+                                        <h5 className="fw-bold">Services</h5>
+                                        <div className="d-flex flex-wrap gap-2">
+                                            <span className="border px-2 rounded">Backend</span>
+                                            <span className="border px-2 rounded">Frontend</span>
+                                            <span className="border px-2 rounded">WordPress</span>
+                                        </div>
+                                        <div className="d-flex justify-content-center mt-4">
+                                            <Link
+                                                href={{
+                                                    pathname: '/users/Apply',
+                                                    query: { id: id },
+                                                }}
+                                                className="btn py-2 btn-primary rounded-pill w-100 text-center hover-bg-dark hover-text-white"
+                                            >
+                                                Apply
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div>No job selected</div>
+                        )}
                     </div>
+
                 </div>
             </div>
         </div>

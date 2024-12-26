@@ -32,7 +32,7 @@ export default function Header() {
     localStorage.removeItem("role");
     localStorage.removeItem("permissions");
     localStorage.removeItem("token");
-    window.location.href = "/auth/signin";
+    window.location.href = "/auth/login";
   };
 
   return (

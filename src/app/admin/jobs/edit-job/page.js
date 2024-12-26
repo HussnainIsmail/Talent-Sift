@@ -48,13 +48,9 @@ export default function Page() {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
-            // After the update, store the updated job object
             setJobDetail(response.data.job);
             setSuccessMessage(response.data.message);  // Success message
             setError('');  // Clear any previous errors
-
-            // Redirect to the job list page after successful update
             router.push('/super-admin/jobs-list');
         } catch (error) {
             if (error.response && error.response.data.errors) {
@@ -64,13 +60,11 @@ export default function Page() {
             }
         }
     };
-
-    // Handle changes in the form fields and update the jobDetail state
     const handleChange = (e) => {
         const { name, value } = e.target;
         setJobDetail(prevState => ({
             ...prevState,
-            [name]: value,  // Dynamically update the correct field in the jobDetail state
+            [name]: value,  
         }));
     };
 
