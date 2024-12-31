@@ -32,8 +32,10 @@ export default function Page() {
                 console.error("Error fetching jobs:", error);
             });
     }, [id, router]);
+
     const sortedJobs = jobs.filter(job => job.id === parseInt(id))
         .concat(jobs.filter(job => job.id !== parseInt(id)));
+
     useEffect(() => {
         if (id) {
             const selected = jobs.find(job => job.id === parseInt(id));
@@ -84,7 +86,7 @@ export default function Page() {
                                                 <Link
                                                     href={{
                                                         pathname: '/users/job-details',
-                                                        query: { id: job.id },
+                                                        query: { id: job.id, company_id: job.company.id },
                                                     }}
                                                     className="btn btn-sm text-white bg-primary rounded-pill text-decoration-none px-3"
                                                 >
@@ -144,7 +146,6 @@ export default function Page() {
                             <div>No job selected</div>
                         )}
                     </div>
-
 
                     {/* Third Column: Company Info and Other Info */}
                     <div className="col-md-3 bg-white border border-left d-none d-sm-block rounded-end">
@@ -206,7 +207,7 @@ export default function Page() {
                                             <Link
                                                 href={{
                                                     pathname: '/users/Apply',
-                                                    query: { id: id },
+                                                    query: { id: id, company_id: selectedJob.company.id },
                                                 }}
                                                 className="btn py-2 btn-primary rounded-pill w-100 text-center hover-bg-dark hover-text-white"
                                             >
@@ -220,7 +221,6 @@ export default function Page() {
                             <div>No job selected</div>
                         )}
                     </div>
-
                 </div>
             </div>
         </div>

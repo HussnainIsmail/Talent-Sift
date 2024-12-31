@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useSearchParams } from 'next/navigation'; 
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 
 export default function JobApplicationsPage() {
@@ -24,7 +24,6 @@ export default function JobApplicationsPage() {
             return;
         }
 
-        // Make an authenticated request to fetch job applications for the specific job
         axios.get(`http://127.0.0.1:8000/api/jobs/${id}/applications`, {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -32,23 +31,22 @@ export default function JobApplicationsPage() {
         })
         .then((response) => {
             const { job_applications } = response.data;
-            console.log(job_applications);  // Debug: log the response data
             setJobApplications(job_applications);
             setLoading(false);
         })
         .catch((error) => {
-            console.error(error);  // Debug: log any error
+            console.error(error);
             setError('Failed to fetch job applications.');
             setLoading(false);
         });
     }, [id]);
 
-    const handleSendEmail = (applicationId) => {
-        window.location.href = `/admin/resume/email?applicationId=${applicationId}&jobId=${id}`;
-    };
-
     const handleReject = (applicationId) => {
         alert(`Reject Job Application with ID: ${applicationId}`);
+    };
+
+    const handleSendEmail = (applicationId) => {
+        router.push(`/admin/resume/email?applicationId=${applicationId}`);
     };
 
     const handleDownload = (filename) => {
@@ -121,5 +119,5 @@ export default function JobApplicationsPage() {
                 </div>
             </div>
         </div>
-    ); 
+    );
 }

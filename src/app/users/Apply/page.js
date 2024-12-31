@@ -12,22 +12,35 @@ export default function Page() {
         contact_no: '',
         cv_path: null,
         job_id: null,
+        company_id: null,
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const jobId = searchParams.get('id'); 
+    const jobId = searchParams.get('id');
+    const companyId = searchParams.get('company_id');
+
     const token = localStorage.getItem('token');
+    
     // Set job_id in formData when jobId exists
     useEffect(() => {
         if (jobId) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
-                job_id: jobId,  // Update formData with job_id from URL
+                job_id: jobId,
             }));
         }
     }, [jobId]);
+    
+    useEffect(() => {
+        if (companyId) {
+            setFormData((prev) => ({
+                ...prev,
+                company_id: companyId,  // Corrected here
+            }));
+        }
+    }, [companyId]);
 
     // Handle input changes
     const handleChange = (e) => {
@@ -46,6 +59,7 @@ export default function Page() {
             cv_path: file,
         });
     };
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -67,19 +81,19 @@ export default function Page() {
         formDataToSubmit.append('contact_no', formData.contact_no);
         formDataToSubmit.append('cv', formData.cv_path);
         formDataToSubmit.append('job_id', formData.job_id);  // Add job_id to form data
+        formDataToSubmit.append('company_id', formData.company_id);
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/applications/store', formDataToSubmit, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                     'Authorization': `Bearer ${token}` 
-
+                    'Authorization': `Bearer ${token}`
                 },
             });
 
             // Show success message and redirect
             alert(response.data.message);
-            router.push('/');  // Redirect to the sign-in page
+            router.push('/');  // Redirect to the homepage
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);  // Set validation errors

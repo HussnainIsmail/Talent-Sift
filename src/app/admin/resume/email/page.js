@@ -7,17 +7,15 @@ import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import axios from 'axios';
 
-const InterviewScheduler = () => {
+export default function IntervieEmail() {
     const searchParams = useSearchParams();
-    const id = searchParams.get('jobId');
+    const applicationId = searchParams.get('applicationId'); 
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [interviewType, setInterviewType] = useState('Online');
-    const [employeeName, setEmployeeName] = useState('');
-    const [jobName, setJobName] = useState('');
-    const [companyName, setCompanyName] = useState('');
-    const [companyLocation, setCompanyLocation] = useState('');
-    const [companyAddress, setCompanyAddress] = useState('');
-    const [companyContact, setCompanyContact] = useState('');
+    const [jobApplication, setJobApplication] = useState(null); 
+    const [company, setCompany] = useState(null); 
+    const [job, setJob] = useState(null); 
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -35,17 +33,22 @@ const InterviewScheduler = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+    
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) {
             alert('Token not found. Please log in again.');
             return;
         }
-
+    
+        if (!applicationId) {
+            alert('Application ID is missing.');
+            return;
+        }
+    
         const formattedDateTime = formatDateTime(selectedDate);
-
+    
         axios.post(
-            `http://127.0.0.1:8000/api/send/intervie-email/${id}`,
+            `http://127.0.0.1:8000/api/send/interview-email/${applicationId}`,
             {
                 interviewType,
                 scheduledDate: formattedDateTime,
@@ -57,12 +60,55 @@ const InterviewScheduler = () => {
             }
         )
         .then((response) => {
-            alert('Interview confirmed successfully!');
+            if (response.data.message) {
+                alert(response.data.message);
+            }
         })
         .catch((error) => {
             alert(`Error: ${error.response?.data?.message || error.message}`);
         });
     };
+    
+
+    useEffect(() => {
+        if (applicationId) {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+            if (!token) {
+                alert('Token not found. Please log in again.');
+                return;
+            }
+
+            axios.get(`http://127.0.0.1:8000/api/application/${applicationId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((response) => {
+                const jobApplicationData = response.data.job_application;
+                const companyData = response.data.company;
+                const jobData = response.data.job;
+
+                console.log("Job data from API:", jobData);
+
+                setJobApplication(jobApplicationData);
+                setCompany(companyData);
+                setJob(jobData);
+                setLoading(false);
+            })
+            .catch((error) => {
+                setError(error.response?.data?.message || error.message);
+                setLoading(false);
+            });
+        }
+    }, [applicationId]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
     return (
         <form onSubmit={handleSubmit}>
@@ -71,9 +117,9 @@ const InterviewScheduler = () => {
                     <h2 className="text-center mb-4 text-primary font-weight-bold">Interview Scheduling</h2>
 
                     <p className="text-center mb-4">
-                        Dear <strong>{employeeName}</strong>,
+                        <strong>{jobApplication?.first_name} {jobApplication?.last_name}</strong>,
                         <br />
-                        We are excited to inform you that your application for the <strong>{jobName}</strong> position at <strong>{companyName}</strong> has advanced to the next stage. We would like to schedule an interview with you.
+                        We are excited to inform you that your application for the <strong>{company?.company_name}</strong> position at <strong>{job?.jobtitle}</strong> has advanced to the next stage. We would like to schedule an interview with you.
                         <br />
                         Below are the details of your interview:
                     </p>
@@ -91,8 +137,8 @@ const InterviewScheduler = () => {
                                     onChange={handleInterviewTypeChange}
                                     aria-label="Select interview type"
                                 >
-                                    <option value="Online">Online</option>
                                     <option value="In-office">In-office</option>
+                                    <option value="Online">Online</option>
                                 </select>
                             </div>
                         </div>
@@ -119,26 +165,24 @@ const InterviewScheduler = () => {
                     </div>
 
                     <div className="text-center mb-4">
-                        {interviewType === 'Online' ? (
+                        {interviewType === 'In-office' ? (
+                            <p>
+                                <strong>Interview Type:</strong> In-office
+                                <br />
+                                <strong>Location:</strong> {company?.company_location}
+                            </p>
+                        ) : (
                             <p>
                                 <strong>Interview Type:</strong> Online
                                 <br />
                                 We will send you a link for the online interview closer to the scheduled time.
                             </p>
-                        ) : (
-                            <p>
-                                <strong>Interview Type:</strong> In-office
-                                <br />
-                                <strong>Location:</strong> {companyLocation}
-                                <br />
-                                <strong>Address:</strong> {companyAddress}
-                            </p>
                         )}
                     </div>
 
                     <div className="text-center mb-4">
-                        <strong>Contact Number:</strong> {companyContact} (For any inquiries or rescheduling)
-                    </div>
+                        <strong>Contact Number:</strong> {jobApplication?.contact_no} (For any inquiries or rescheduling)
+                    </div> 
 
                     <div className="text-center">
                         <button type="submit" className="btn btn-primary px-4 py-2">Confirm Interview</button>
@@ -147,6 +191,4 @@ const InterviewScheduler = () => {
             </div>
         </form>
     );
-};
-
-export default InterviewScheduler;
+}
