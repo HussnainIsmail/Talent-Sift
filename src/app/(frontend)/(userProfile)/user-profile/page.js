@@ -3,16 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
-import NavBar from '../../../app/{frontend}/sections/NavBar'
-// import NavBar from '../{frontend}/sections/NavBar';
-
 export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const router = useRouter(); // Use proper naming for the hook
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -42,9 +39,9 @@ export default function UserProfile() {
     fetchUserInfo();
   }, [router]);
 
-  const handleUpdateProfileClick = () => {
-    router.push(`profile/editprofile/${user.id}`);
-  };
+  // const handleUpdateProfileClick = () => {
+  //   router.push(`/edit-profile/${user.id}`);
+  // };
 
   if (loading) return <div className="text-center mt-5">Loading...</div>;
   if (error) return <div className="alert alert-danger mt-5">{error}</div>;
@@ -52,7 +49,6 @@ export default function UserProfile() {
 
   return (
     <div>
-    <NavBar/>
       <div className="container mt-5">
         <div className="row">
           {/* Main Profile Section */}
@@ -87,15 +83,25 @@ export default function UserProfile() {
                 </div>
 
                 <div className="d-flex gap-2">
-                  <button className="btn btn-outline-primary w-50">Open to</button>
-                  <button
-                    className="btn btn-outline-primary w-50"
-                    onClick={handleUpdateProfileClick}
-                  >
-                    Update profile
-                  </button>
-                  <button className="btn btn-outline-primary w-50">Enhance profile</button>
-                </div>
+  <button className="btn btn-outline-primary w-50">Open to</button>
+  <Link
+    href={{
+      pathname: '/edit-profile',
+      query: { id: user?.id },
+    }}
+    className="w-50"
+  >
+    <button
+      className="btn btn-outline-primary w-100"
+      disabled={!user?.id}
+    >
+      Update profile
+    </button>
+  </Link>
+  <button className="btn btn-outline-primary w-50">Enhance profile</button>
+</div>
+
+
 
                 <hr className="my-4" />
                 <div className="d-flex justify-content-between">

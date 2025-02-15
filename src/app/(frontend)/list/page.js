@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import NavBar from '@/sections/NavBar';
+// import NavBar from '@/sections/NavBar';
 import { useRouter } from 'next/navigation';
 
 export default function UserList() {
@@ -49,7 +49,7 @@ export default function UserList() {
 
     return (
         <div>
-            <NavBar />
+            {/* <NavBar /> */}
             <section className="p-3 p-md-4 p-xl-5">
                 <div className="container">
                     <div className="row justify-content-center">

@@ -228,7 +228,7 @@ export default function NavBar() {
                   {/* Use dropdown-menu-end to align the dropdown to the left */}
                   <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                     <li>
-                      <a className="dropdown-item" href="/profile/profile">User Profile</a>
+                      <a className="dropdown-item" href="/user-profile">User Profile</a>
                     </li>
                     <li>
                       <a

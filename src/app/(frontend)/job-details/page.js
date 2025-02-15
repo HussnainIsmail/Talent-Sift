@@ -1,7 +1,7 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import NavBar from '@/sections/NavBar';
+// import NavBar from '@/sections/NavBar';
 import axios from 'axios';
 import { FaRegBookmark } from "react-icons/fa";
 import Link from 'next/link';
@@ -45,7 +45,6 @@ export default function Page() {
 
     return (
         <div>
-            <NavBar />
             <div className="container-fluid px-4">
                 <div className="row pt-3">
                     {/* Sidebar with Jobs List */}
@@ -85,7 +84,7 @@ export default function Page() {
                                                 </div>
                                                 <Link
                                                     href={{
-                                                        pathname: '/users/job-details',
+                                                        pathname: '/job-details',
                                                         query: { id: job.id, company_id: job.company.id },
                                                     }}
                                                     className="btn btn-sm text-white bg-primary rounded-pill text-decoration-none px-3"
@@ -206,7 +205,7 @@ export default function Page() {
                                         <div className="d-flex justify-content-center mt-4">
                                             <Link
                                                 href={{
-                                                    pathname: '/users/Apply',
+                                                    pathname: '/apply',
                                                     query: { id: id, company_id: selectedJob.company.id },
                                                 }}
                                                 className="btn py-2 btn-primary rounded-pill w-100 text-center hover-bg-dark hover-text-white"
