@@ -26,6 +26,7 @@ export default function page() {
 
     try {
       const response = await axios.post('/login', { email, password });
+      console.log('Login Response:', response.data);
       localStorage.setItem('token', response.data.token); 
       localStorage.setItem('role', response.data.role); 
       localStorage.setItem('name', response.data.name); 

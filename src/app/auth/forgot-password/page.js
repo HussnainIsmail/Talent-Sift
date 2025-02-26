@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import NavBar from '@/sections/NavBar';
-import '../globals.css';
+import '../../globals.css';
 
 export default function Page() {
     const [email, setEmail] = useState(''); 
