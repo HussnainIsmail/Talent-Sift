@@ -174,9 +174,9 @@ export default function AdminSideBar() {
                         return false;
                       }
 
-                      if (label === "Register" && !permissions.includes("register-company")) {
-                        return false;
-                      }
+                      // if (label === "Register" && !permissions.includes("register-company")) {
+                      //   return false;
+                      // }
                       // if (label === "Company List" && !permissions.includes("show-companies")) {
                       //   return false;
                       // }

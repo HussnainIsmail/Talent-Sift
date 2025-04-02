@@ -1,80 +1,71 @@
-
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import NavBar from '@/sections/NavBar'
+import NavBar from '@/sections/NavBar';
 
-// tetsing git
 export default function Page() {
+  const [userType, setUserType] = useState(null); // To track whether candidate or employer is selected
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     passwordConfirmation: '',
-    iAgree: false
+    companyName: '', // Only for employers
   });
+
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // Handle input change
   const handleChange = (e) => {
-    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [e.target.name]: e.target.value
     });
   };
 
-  const handleCheckboxChange = (e) => {
-    setFormData({
-      ...formData,
-      iAgree: e.target.checked
-    });
-  };
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
     setIsSubmitting(true);
-
+  
     if (formData.password !== formData.passwordConfirmation) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        passwordConfirmation: "Passwords do not match.",
-      }));
+      setErrors({ passwordConfirmation: "Passwords do not match." });
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         password_confirmation: formData.passwordConfirmation,
+        user_type: userType === 'candidate' ? 'user' : 'recuriter', // Sending as 'user' or 'recuriter'
+        company_name: userType === 'employer' ? formData.companyName : null,
       });
-
-      // Show success message
-      alert(response.data.message); // Or use a toast library for better UX
+  
+      alert(response.data.message); // Show success message
       router.push('/auth/login'); // Redirect to sign-in page
     } catch (error) {
-      console.error('Registration failed:', error);
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
         setErrors({ general: "An error occurred, please try again." });
       }
     }
-
+  
     setIsSubmitting(false);
   };
-
+  
 
   return (
-    <div >
+    <div>
       <NavBar />
-      <section className=" p-3 p-md-4 p-xl-5">
+      <section className="p-3 p-md-4 p-xl-5">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-xxl-11">
@@ -91,7 +82,6 @@ export default function Page() {
                   <div className="col-12 col-md-6 d-flex align-items-center justify-content-center">
                     <div className="col-12 col-lg-11 col-xl-10">
                       <div className="card-body p-3 p-md-4 p-xl-5">
-                        {/* Logo Section */}
                         <div className="text-center mb-4">
                           <a href="#!" className="text-decoration-none">
                             <img
@@ -103,47 +93,78 @@ export default function Page() {
                           </a>
                         </div>
 
-                        <form onSubmit={handleSubmit}>
-                          <div className="row gy-3">
-                            {errors.general && (
-                              <div className="col-12">
-                                <div className="alert alert-danger">{errors.general}</div>
-                              </div>
-                            )}
+                        {!userType ? (
+                          // User Selection Step
+                          <div className="text-center">
+                            <h4>Select Registration Type</h4>
+                            <button className="btn btn-primary m-2" onClick={() => setUserType('candidate')}>
+                              Register as Candidate
+                            </button>
+                            <button className="btn btn-secondary m-2" onClick={() => setUserType('employer')}>
+                              Register as Employer
+                            </button>
+                          </div>
+                        ) : (
+                          // Registration Form
+                          <form onSubmit={handleSubmit}>
+                            <h4 className="mb-3">Register as {userType === 'candidate' ? "Candidate" : "Employer"}</h4>
+
+                            {errors.general && <div className="alert alert-danger">{errors.general}</div>}
+
+                            {/* Name Input */}
                             <div className="col-12">
                               <div className="form-floating mb-3">
                                 <input
                                   type="text"
                                   className="form-control"
                                   name="name"
-                                  id="name"
                                   value={formData.name}
                                   onChange={handleChange}
                                   placeholder="Name"
                                   required
                                 />
-                                <label htmlFor="name" className="form-label">Name</label>
+                                <label className="form-label">Name</label>
                                 {errors.name && <div className="text-danger">{errors.name}</div>}
                               </div>
                             </div>
 
+                            {/* Email Input */}
                             <div className="col-12">
                               <div className="form-floating mb-3">
                                 <input
                                   type="email"
                                   className="form-control"
                                   name="email"
-                                  id="email"
                                   value={formData.email}
                                   onChange={handleChange}
                                   placeholder="Email"
                                   required
                                 />
-                                <label htmlFor="email" className="form-label">Email</label>
+                                <label className="form-label">Email</label>
                                 {errors.email && <div className="text-danger">{errors.email}</div>}
                               </div>
                             </div>
 
+                            {/* Company Name Input (Only for Employers) */}
+                            {userType === 'employer' && (
+                              <div className="col-12">
+                                <div className="form-floating mb-3">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    name="companyName"
+                                    value={formData.companyName}
+                                    onChange={handleChange}
+                                    placeholder="Company Name"
+                                    required
+                                  />
+                                  <label className="form-label">Company Name</label>
+                                  {errors.companyName && <div className="text-danger">{errors.companyName}</div>}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Password Input */}
                             <div className="col-12">
                               <div className="form-floating mb-3">
                                 <input
@@ -155,11 +176,11 @@ export default function Page() {
                                   onChange={handleChange}
                                   required
                                 />
-                                <label htmlFor="password" className="form-label">Password</label>
-                                {errors.password && <div className="text-danger">{errors.password}</div>}
+                                <label className="form-label">Password</label>
                               </div>
                             </div>
 
+                            {/* Confirm Password */}
                             <div className="col-12">
                               <div className="form-floating mb-3">
                                 <input
@@ -171,48 +192,17 @@ export default function Page() {
                                   onChange={handleChange}
                                   required
                                 />
-                                <label htmlFor="passwordConfirmation" className="form-label">
-                                  Confirm Password
-                                </label>
-                                {errors.passwordConfirmation && (
-                                  <div className="text-danger">{errors.passwordConfirmation}</div>
-                                )}
+                                <label className="form-label">Confirm Password</label>
                               </div>
                             </div>
 
-                            <div className="col-12 form-check">
-                              <input
-                                type="checkbox"
-                                name="iAgree"
-                                className="form-check-input"
-                                checked={formData.iAgree}
-                                onChange={handleCheckboxChange}
-                                required
-                              />
-                              <label className="form-check-label ms-2">
-                                I agree to the terms and conditions
-                              </label>
-                            </div>
-
                             <div className="col-12">
-                              <button
-                                type="submit"
-                                className="btn btn-primary w-100"
-                                disabled={isSubmitting}
-                              >
+                              <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
                                 {isSubmitting ? "Submitting..." : "Register"}
                               </button>
                             </div>
-                          </div>
-                        </form>
-
-                        {/* Already have an account */}
-                        <p className="mt-4 text-center">
-                          Already have an account?{" "}
-                          <a href="/login" className="link-primary text-decoration-none">
-                            Log In
-                          </a>
-                        </p>
+                          </form>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -224,6 +214,4 @@ export default function Page() {
       </section>
     </div>
   );
-
-
 }

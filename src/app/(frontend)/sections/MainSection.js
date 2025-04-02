@@ -5,32 +5,28 @@ import Link from 'next/link';
 import SideBar from './SideBar';
 import { FaRegBookmark } from 'react-icons/fa';
 import Pusher from 'pusher-js';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 import '../../../app/globals.css';
 
 export default function MainSection() {
     const router = useRouter();
     const [jobs, setJobs] = useState([]);
-    const [filters, setFilters] = useState([]);  // Initialize filters
+    const [filters, setFilters] = useState([]); 
 
     useEffect(() => {
-        // Effect to fetch jobs based on filters from query params
         if (router.query?.filters) {
-            const filtersArray = router.query.filters.split(',');  
+            const filtersArray = router.query.filters.split(',');
             setFilters(filtersArray);
         }
     }, [router.query?.filters]);
 
     useEffect(() => {
-        // Function to fetch jobs from the API
         const fetchJobs = async () => {
             try {
-                const filterQuery = filters.join(',');  // Join filters into a query string
+                const filterQuery = filters.join(','); 
                 const response = await axios.get(`http://localhost:8000/api/jobs/show?filters=${filterQuery}`);
-                console.log("API Response:", response.data);
                 let fetchedJobs = response.data.jobs;
 
-                // Sort jobs based on filters (if needed)
                 if (filters.length > 0) {
                     fetchedJobs = fetchedJobs.sort((a, b) => {
                         const aHasProjectWork = a.job_types.some(type => type.type === 'projectWork');
@@ -49,14 +45,14 @@ export default function MainSection() {
             }
         };
 
-        fetchJobs();  // Fetch jobs whenever filters change
+        fetchJobs();  
 
         // Set up Pusher to listen for new job posts
         const pusher = new Pusher('68d431386799dc1b76cd', { cluster: 'ap2' });
         const channel = pusher.subscribe('jobs');
-        channel.bind('job-posted', function(data) {
+        channel.bind('job-posted', function (data) {
             console.log('New job posted:', data.job);
-            setJobs(prevJobs => [data.job, ...prevJobs]);  // Add new job to the list
+            setJobs(prevJobs => [data.job, ...prevJobs]);  
         });
 
         // Cleanup Pusher subscription
@@ -83,113 +79,113 @@ export default function MainSection() {
         <div className="d-flex flex-column flex-md-row" style={{ backgroundColor: '#F8F9FA', minHeight: '100vh' }}>
             {/* Sidebar Section */}
             <div className="sidebar bg-light p-4 col-12 col-md-3 custom-hide-sm">
-            <div className='d-flex justify-content-between'>
-                <p className='fw-bold'>Job Type</p>
-            </div>
-            <div>
-                <form>
-                    <div className='ps-2'>
-                        {/* Job Type Filters */}
-                        <div className="form-check mb-2">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="full-time"
-                                value="full-time"
-                                checked={filters.includes("full-time")}
-                                onChange={handleFilterChange}
-                            />
-                            <label className="form-check-label" htmlFor="fullTime">
-                                Full-Time
-                            </label>
-                        </div>
-                        <div className="form-check mb-2">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="partTime"
-                                value="part-time"
-                                checked={filters.includes("part-time")}
-                                onChange={handleFilterChange}
-                            />
-                            <label className="form-check-label" htmlFor="partTime">
-                                Part-Time
-                            </label>
-                        </div>
-                        <div className="form-check mb-2">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="internship"
-                                value="internship"
-                                checked={filters.includes("internship")}
-                                onChange={handleFilterChange}
-                            />
-                            <label className="form-check-label" htmlFor="internship">
-                                Internship
-                            </label>
-                        </div>
-                        <div className="form-check mb-2">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="projectWork"
-                                value="projectWork"
-                                checked={filters.includes("projectWork")}
-                                onChange={handleFilterChange}
-                            />
-                            <label className="form-check-label" htmlFor="projectWork">
-                                Project Work
-                            </label>
-                        </div>
+                <div className='d-flex justify-content-between'>
+                    <p className='fw-bold'>Job Type</p>
+                </div>
+                <div>
+                    <form>
+                        <div className='ps-2'>
+                            {/* Job Type Filters */}
+                            <div className="form-check mb-2">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="full-time"
+                                    value="full-time"
+                                    checked={filters.includes("full-time")}
+                                    onChange={handleFilterChange}
+                                />
+                                <label className="form-check-label" htmlFor="fullTime">
+                                    Full-Time
+                                </label>
+                            </div>
+                            <div className="form-check mb-2">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="partTime"
+                                    value="part-time"
+                                    checked={filters.includes("part-time")}
+                                    onChange={handleFilterChange}
+                                />
+                                <label className="form-check-label" htmlFor="partTime">
+                                    Part-Time
+                                </label>
+                            </div>
+                            <div className="form-check mb-2">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="internship"
+                                    value="internship"
+                                    checked={filters.includes("internship")}
+                                    onChange={handleFilterChange}
+                                />
+                                <label className="form-check-label" htmlFor="internship">
+                                    Internship
+                                </label>
+                            </div>
+                            <div className="form-check mb-2">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="projectWork"
+                                    value="projectWork"
+                                    checked={filters.includes("projectWork")}
+                                    onChange={handleFilterChange}
+                                />
+                                <label className="form-check-label" htmlFor="projectWork">
+                                    Project Work
+                                </label>
+                            </div>
 
-                        {/* Job Level Filters */}
-                        <div className="mt-4">
-                            <p className='fw-bold'>Job Level</p>
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="entryLevel"
-                                    value="entry-level"
-                                    checked={filters.includes("entry-level")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="entryLevel">
-                                    Entry
-                                </label>
-                            </div>
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="midLevel"
-                                    value="mid-level"
-                                    checked={filters.includes("mid-level")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="midLevel">
-                                    Mid
-                                </label>
-                            </div>
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="expertLevel"
-                                    value="expert-level"
-                                    checked={filters.includes("expert-level")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="expertLevel">
-                                    Expert
-                                </label>
+                            {/* Job Level Filters */}
+                            <div className="mt-4">
+                                <p className='fw-bold'>Job Level</p>
+                                <div className="form-check mb-2">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="entryLevel"
+                                        value="entry-level"
+                                        checked={filters.includes("entry-level")}
+                                        onChange={handleFilterChange}
+                                    />
+                                    <label className="form-check-label" htmlFor="entryLevel">
+                                        Entry
+                                    </label>
+                                </div>
+                                <div className="form-check mb-2">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="midLevel"
+                                        value="mid-level"
+                                        checked={filters.includes("mid-level")}
+                                        onChange={handleFilterChange}
+                                    />
+                                    <label className="form-check-label" htmlFor="midLevel">
+                                        Mid
+                                    </label>
+                                </div>
+                                <div className="form-check mb-2">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="expertLevel"
+                                        value="expert-level"
+                                        checked={filters.includes("expert-level")}
+                                        onChange={handleFilterChange}
+                                    />
+                                    <label className="form-check-label" htmlFor="expertLevel">
+                                        Expert
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
             {/* Main Content Section */}
             <div className="main-content flex-grow-1 py-4 col-12 col-md-9">
                 <div className="container-fluid">
@@ -251,6 +247,9 @@ export default function MainSection() {
                                                 >
                                                     Details
                                                 </Link>
+
+
+
                                             </div>
                                         </div>
                                     </div>

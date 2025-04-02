@@ -11,34 +11,34 @@ export default function page() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();  
+  const router = useRouter();
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      router.push('/');  
+      router.push('/');
     }
   }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(''); 
+    setError('');
 
     try {
       const response = await axios.post('/login', { email, password });
       console.log('Login Response:', response.data);
-      localStorage.setItem('token', response.data.token); 
-      localStorage.setItem('role', response.data.role); 
-      localStorage.setItem('name', response.data.name); 
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role);
+      localStorage.setItem('name', response.data.name);
       localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
       alert('Login successful!');
       setLoading(false);
       const role = response.data.role;
-       if (role === 'admin' || role === 'super-admin'|| role === 'recuriter') {
-      router.push('/admin/dashboard');
-    } else {
-      router.push('/');
-    }
+      if (role === 'admin' || role === 'super-admin' || role === 'recuriter') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/');
+      }
     } catch (error) {
       setLoading(false);
 

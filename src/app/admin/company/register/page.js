@@ -35,7 +35,6 @@ export default function Page() {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Split services by commas and ensure there are at least 5 services
         const servicesArray = formData.services.split(',').map(service => service.trim());
         if (servicesArray.length < 5) {
             setErrors({ services: "At least 5 services are required, separated by commas." });
@@ -54,7 +53,6 @@ export default function Page() {
         console.log("Data to send:", dataToSend);
 
         try {
-            // Include token in headers for authentication
             const response = await axios.post('http://127.0.0.1:8000/api/companies/store', dataToSend, {
                 headers: {
                     'Authorization': `Bearer ${token}` 

@@ -1,5 +1,4 @@
 'use client';
-// import NavBar from '@/sections/NavBar';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -91,9 +90,8 @@ export default function Page() {
                 },
             });
 
-            // Show success message and redirect
             alert(response.data.message);
-            router.push('/');  // Redirect to the homepage
+            router.push('/'); 
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);  // Set validation errors
