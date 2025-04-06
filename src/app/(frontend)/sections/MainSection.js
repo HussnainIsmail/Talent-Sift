@@ -1,4 +1,3 @@
-'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
@@ -11,66 +10,83 @@ import '../../../app/globals.css';
 export default function MainSection() {
     const router = useRouter();
     const [jobs, setJobs] = useState([]);
-    const [filters, setFilters] = useState([]); 
+    const [filteredJobs, setFilteredJobs] = useState([]);
+    const [filters, setFilters] = useState({
+        job_types: [],
+        job_levels: [],
+    });
 
-    useEffect(() => {
-        if (router.query?.filters) {
-            const filtersArray = router.query.filters.split(',');
-            setFilters(filtersArray);
+    const fetchJobs = async () => {
+        try {
+            // Make the API request without filters
+            const response = await axios.get('http://localhost:8000/api/jobs/show');
+            const fetchedJobs = response.data.jobs;
+            console.log(fetchedJobs);
+            setJobs(fetchedJobs); 
+            setFilteredJobs(fetchedJobs);  // Set the initial job list without filters
+        } catch (error) {
+            console.error("Error fetching jobs:", error);
         }
-    }, [router.query?.filters]);
+    };
+
+    // Filter jobs based on selected filters
+    const filterJobs = () => {
+        let updatedJobs = [...jobs]; // Start with all jobs
+
+        // Filter by job types
+        if (filters.job_types.length > 0) {
+            updatedJobs = updatedJobs.filter(job =>
+                job.job_types.some(type => filters.job_types.includes(type.type))
+            );
+        }
+
+        // Filter by job levels
+        if (filters.job_levels.length > 0) {
+            updatedJobs = updatedJobs.filter(job =>
+                job.job_levels.some(level => filters.job_levels.includes(level.level))
+            );
+        }
+
+        setFilteredJobs(updatedJobs);  // Update filtered jobs
+    };
 
     useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                const filterQuery = filters.join(','); 
-                const response = await axios.get(`http://localhost:8000/api/jobs/show?filters=${filterQuery}`);
-                let fetchedJobs = response.data.jobs;
-
-                if (filters.length > 0) {
-                    fetchedJobs = fetchedJobs.sort((a, b) => {
-                        const aHasProjectWork = a.job_types.some(type => type.type === 'projectWork');
-                        const bHasProjectWork = b.job_types.some(type => type.type === 'projectWork');
-                        if (filters.includes('projectWork')) {
-                            if (aHasProjectWork && !bHasProjectWork) return -1;
-                            if (!aHasProjectWork && bHasProjectWork) return 1;
-                        }
-                        return 0;
-                    });
-                }
-
-                setJobs(fetchedJobs);  // Update state with fetched jobs
-            } catch (error) {
-                console.error("Error fetching jobs:", error);
-            }
-        };
-
-        fetchJobs();  
+        fetchJobs();
 
         // Set up Pusher to listen for new job posts
         const pusher = new Pusher('68d431386799dc1b76cd', { cluster: 'ap2' });
         const channel = pusher.subscribe('jobs');
         channel.bind('job-posted', function (data) {
             console.log('New job posted:', data.job);
-            setJobs(prevJobs => [data.job, ...prevJobs]);  
+            setJobs(prevJobs => [data.job, ...prevJobs]);
+            filterJobs();  // Re-filter jobs after a new job is posted
         });
 
         // Cleanup Pusher subscription
         return () => {
             pusher.unsubscribe('jobs');
         };
+    }, []);
+
+    useEffect(() => {
+        filterJobs(); // Filter jobs whenever filters change
     }, [filters]);
 
-    // Handle checkbox change and update filters
-    const handleFilterChange = (event) => {
-        const { value, checked } = event.target;
+    const handleFilterChange = (category, value) => {
         setFilters((prevFilters) => {
-            const newFilters = checked ? [...prevFilters, value] : prevFilters.filter(filter => filter !== value);
-            // Update the URL query parameters when filters change
-            router.push({
-                pathname: router.pathname,
-                query: { filters: newFilters.join(',') },
-            }, undefined, { shallow: true });
+            const current = prevFilters[category];
+            const isChecked = current.includes(value);
+
+            const updated = isChecked
+                ? current.filter((item) => item !== value)
+                : [...current, value];
+
+            const newFilters = {
+                ...prevFilters,
+                [category]: updated,
+            };
+
+            console.log("Selected Filters:", newFilters);
             return newFilters;
         });
     };
@@ -78,114 +94,7 @@ export default function MainSection() {
     return (
         <div className="d-flex flex-column flex-md-row" style={{ backgroundColor: '#F8F9FA', minHeight: '100vh' }}>
             {/* Sidebar Section */}
-            <div className="sidebar bg-light p-4 col-12 col-md-3 custom-hide-sm">
-                <div className='d-flex justify-content-between'>
-                    <p className='fw-bold'>Job Type</p>
-                </div>
-                <div>
-                    <form>
-                        <div className='ps-2'>
-                            {/* Job Type Filters */}
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="full-time"
-                                    value="full-time"
-                                    checked={filters.includes("full-time")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="fullTime">
-                                    Full-Time
-                                </label>
-                            </div>
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="partTime"
-                                    value="part-time"
-                                    checked={filters.includes("part-time")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="partTime">
-                                    Part-Time
-                                </label>
-                            </div>
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="internship"
-                                    value="internship"
-                                    checked={filters.includes("internship")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="internship">
-                                    Internship
-                                </label>
-                            </div>
-                            <div className="form-check mb-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="projectWork"
-                                    value="projectWork"
-                                    checked={filters.includes("projectWork")}
-                                    onChange={handleFilterChange}
-                                />
-                                <label className="form-check-label" htmlFor="projectWork">
-                                    Project Work
-                                </label>
-                            </div>
-
-                            {/* Job Level Filters */}
-                            <div className="mt-4">
-                                <p className='fw-bold'>Job Level</p>
-                                <div className="form-check mb-2">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="entryLevel"
-                                        value="entry-level"
-                                        checked={filters.includes("entry-level")}
-                                        onChange={handleFilterChange}
-                                    />
-                                    <label className="form-check-label" htmlFor="entryLevel">
-                                        Entry
-                                    </label>
-                                </div>
-                                <div className="form-check mb-2">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="midLevel"
-                                        value="mid-level"
-                                        checked={filters.includes("mid-level")}
-                                        onChange={handleFilterChange}
-                                    />
-                                    <label className="form-check-label" htmlFor="midLevel">
-                                        Mid
-                                    </label>
-                                </div>
-                                <div className="form-check mb-2">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="expertLevel"
-                                        value="expert-level"
-                                        checked={filters.includes("expert-level")}
-                                        onChange={handleFilterChange}
-                                    />
-                                    <label className="form-check-label" htmlFor="expertLevel">
-                                        Expert
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <SideBar filters={filters} handleFilterChange={handleFilterChange} />
             {/* Main Content Section */}
             <div className="main-content flex-grow-1 py-4 col-12 col-md-9">
                 <div className="container-fluid">
@@ -193,7 +102,7 @@ export default function MainSection() {
                         <div className="d-flex align-items-center">
                             <h2 className="me-2">Recommended Jobs</h2>
                             <span className="text-black border border-2 rounded-pill px-2 fw-bolder">
-                                {jobs.length}
+                                {filteredJobs.length}
                             </span>
                         </div>
                         <a className="fw-bolder text-black border border-2 px-3 rounded-pill text-decoration-none bg-transparent custom-hide-sm" href="#">
@@ -203,10 +112,10 @@ export default function MainSection() {
 
                     {/* Job Cards Grid */}
                     <div className="row">
-                        {jobs.length === 0 ? (
+                        {filteredJobs.length === 0 ? (
                             <p>No jobs available</p>
                         ) : (
-                            jobs.map((job) => (
+                            filteredJobs.map((job) => (
                                 <div key={job.id} className="col-12 col-md-4 col-xl-4 mb-4">
                                     <div className="card shadow-sm border-0 h-100 rounded-4 bg-white p-3">
                                         <div className="rounded-4 p-3" style={{ backgroundColor: '#F1F3F5' }}>
@@ -247,9 +156,6 @@ export default function MainSection() {
                                                 >
                                                     Details
                                                 </Link>
-
-
-
                                             </div>
                                         </div>
                                     </div>
