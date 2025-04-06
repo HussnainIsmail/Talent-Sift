@@ -62,8 +62,8 @@ export default function Page() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            alert('Access denied. Please log in first.');
-            router.push('/auth/signin');
+            // alert('Access denied. Please log in first.');
+            router.push('/auth/login');
         }
     }, [router]);
 

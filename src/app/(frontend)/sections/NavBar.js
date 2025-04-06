@@ -147,7 +147,7 @@ export default function NavBar() {
                   Home
                 </a>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <a
                   className={`nav-link px-3 text-white ${activeLink === "messages" ? "active-link" : ""}`}
                   href="#"
@@ -155,8 +155,8 @@ export default function NavBar() {
                 >
                   Messages
                 </a>
-              </li>
-              <li className="nav-item">
+              </li> */}
+              {/* <li className="nav-item">
                 <a
                   className={`nav-link px-3 text-white ${activeLink === "hiring" ? "active-link" : ""}`}
                   href="#"
@@ -164,7 +164,7 @@ export default function NavBar() {
                 >
                   Hiring
                 </a>
-              </li>
+              </li> */}
               <li className="nav-item">
                 <a
                   className={`nav-link px-3 text-white ${activeLink === "about-us" ? "active-link" : ""}`}
@@ -235,7 +235,7 @@ export default function NavBar() {
                       <a
                         className="dropdown-item"
                         href="#"
-                        onClick={handleLogout} // Add onClick event to logout
+                        onClick={handleLogout}
                       >
                         Log Out
                       </a>
