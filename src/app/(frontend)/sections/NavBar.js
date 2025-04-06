@@ -167,13 +167,14 @@ export default function NavBar() {
               </li>
               <li className="nav-item">
                 <a
-                  className={`nav-link px-3 text-white ${activeLink === "community" ? "active-link" : ""}`}
-                  href="#"
-                  onClick={() => handleLinkClick("community")}
+                  className={`nav-link px-3 text-white ${activeLink === "about-us" ? "active-link" : ""}`}
+                  href="/about-us"
+                  onClick={() => handleLinkClick("about-us")}
                 >
-                  Community
+                  About Us
                 </a>
               </li>
+
               <li className="nav-item">
                 <a
                   className={`nav-link px-3 text-white ${activeLink === "faq" ? "active-link" : ""}`}
