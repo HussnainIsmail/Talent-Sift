@@ -58,7 +58,7 @@ export default function AdminSideBar() {
     Jobs: [
       { label: "Job List", path: "/admin/jobs/job-list" },
       { label: "Create Job", path: "/admin/jobs/create-job" },
-      { label: "Edit Job", path: "/admin/jobs/edit-job" },
+      // { label: "Edit Job", path: "/admin/jobs/edit-job" },
     ],
   };
 

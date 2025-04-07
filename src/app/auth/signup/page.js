@@ -1,29 +1,68 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/sections/NavBar';
 
 export default function Page() {
-  const [userType, setUserType] = useState(null); // To track whether candidate or employer is selected
+  const [userType, setUserType] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     passwordConfirmation: '',
-    companyName: '', // Only for employers
+    companyName: '',
   });
-
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
+  // Validate Email
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  // Validate Password (min 8, uppercase, lowercase, number, special char)
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/;
+    return regex.test(password);
+  };
 
   // Handle input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+  };
+
+  // Handle onBlur for validation
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'email' && !validateEmail(value)) {
+      setErrors((prev) => ({ ...prev, email: 'Please enter a valid email address.' }));
+    }
+
+    if (name === 'password' && !validatePassword(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        password:
+          'Password must be at least 8 characters long, contain uppercase, lowercase, a number, and a special character.',
+      }));
+    }
+
+    if (name === 'passwordConfirmation' && value !== formData.password) {
+      setErrors((prev) => ({
+        ...prev,
+        passwordConfirmation: 'Passwords do not match.',
+      }));
+    }
   };
 
   // Handle form submission
@@ -31,36 +70,86 @@ export default function Page() {
     e.preventDefault();
     setErrors({});
     setIsSubmitting(true);
-  
-    if (formData.password !== formData.passwordConfirmation) {
-      setErrors({ passwordConfirmation: "Passwords do not match." });
+
+    // Frontend validations
+    if (!validateEmail(formData.email)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: 'Please enter a valid email address.',
+      }));
       setIsSubmitting(false);
       return;
     }
-  
+
+    if (!validatePassword(formData.password)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password:
+          'Password must be at least 8 characters long, contain uppercase, lowercase, a number, and a special character.',
+      }));
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.password !== formData.passwordConfirmation) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        passwordConfirmation: 'Passwords do not match.',
+      }));
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         password_confirmation: formData.passwordConfirmation,
-        user_type: userType === 'candidate' ? 'user' : 'recuriter', // Sending as 'user' or 'recuriter'
+        user_type: userType === 'candidate' ? 'candidate' : 'recuriter',
         company_name: userType === 'employer' ? formData.companyName : null,
       });
-  
-      alert(response.data.message); // Show success message
-      router.push('/auth/login'); // Redirect to sign-in page
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Registration Successful!',
+        text: 'You have registered successfully',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push('/auth/login');
+        }
+      });
+      
+
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 3000);
     } catch (error) {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
+
+        const firstError = Object.values(error.response.data.errors)[0][0];
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: firstError || 'An error occurred. Please try again.',
+        });
       } else {
-        setErrors({ general: "An error occurred, please try again." });
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An unexpected error occurred. Please try again.',
+        });
       }
     }
-  
+
     setIsSubmitting(false);
   };
-  
+
 
   return (
     <div>
@@ -94,7 +183,6 @@ export default function Page() {
                         </div>
 
                         {!userType ? (
-                          // User Selection Step
                           <div className="text-center">
                             <h4>Select Registration Type</h4>
                             <button className="btn btn-primary m-2" onClick={() => setUserType('candidate')}>
@@ -105,13 +193,11 @@ export default function Page() {
                             </button>
                           </div>
                         ) : (
-                          // Registration Form
                           <form onSubmit={handleSubmit}>
-                            <h4 className="mb-3">Register as {userType === 'candidate' ? "Candidate" : "Employer"}</h4>
+                            <h4 className="mb-3">Register as {userType === 'candidate' ? 'Candidate' : 'Employer'}</h4>
 
                             {errors.general && <div className="alert alert-danger">{errors.general}</div>}
 
-                            {/* Name Input */}
                             <div className="col-12">
                               <div className="form-floating mb-3">
                                 <input
@@ -120,6 +206,7 @@ export default function Page() {
                                   name="name"
                                   value={formData.name}
                                   onChange={handleChange}
+                                  onBlur={handleBlur}
                                   placeholder="Name"
                                   required
                                 />
@@ -128,7 +215,6 @@ export default function Page() {
                               </div>
                             </div>
 
-                            {/* Email Input */}
                             <div className="col-12">
                               <div className="form-floating mb-3">
                                 <input
@@ -137,6 +223,7 @@ export default function Page() {
                                   name="email"
                                   value={formData.email}
                                   onChange={handleChange}
+                                  onBlur={handleBlur}
                                   placeholder="Email"
                                   required
                                 />
@@ -145,7 +232,6 @@ export default function Page() {
                               </div>
                             </div>
 
-                            {/* Company Name Input (Only for Employers) */}
                             {userType === 'employer' && (
                               <div className="col-12">
                                 <div className="form-floating mb-3">
@@ -164,41 +250,72 @@ export default function Page() {
                               </div>
                             )}
 
-                            {/* Password Input */}
                             <div className="col-12">
-                              <div className="form-floating mb-3">
+                              <div className="form-floating mb-3 position-relative">
                                 <input
-                                  type="password"
+                                  type={showPassword ? 'text' : 'password'}
                                   name="password"
                                   className="form-control"
                                   placeholder="Password"
                                   value={formData.password}
                                   onChange={handleChange}
+                                  onBlur={handleBlur}
                                   required
                                 />
                                 <label className="form-label">Password</label>
+                                <small className="text-muted">
+                                  Must be 8+ characters with uppercase, lowercase, number, and special symbol.
+                                </small>
+                                {errors.password && <div className="text-danger">{errors.password}</div>}
+                                <span
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '38%',
+                                    right: '10px',
+                                    transform: 'translateY(-90%)',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  {showPassword ? '👁️‍🗨️' : '🙈'}
+                                </span>
                               </div>
                             </div>
 
-                            {/* Confirm Password */}
+
                             <div className="col-12">
-                              <div className="form-floating mb-3">
+                              <div className="form-floating mb-3 position-relative">
                                 <input
-                                  type="password"
+                                  type={showConfirmPassword ? 'text' : 'password'}
                                   name="passwordConfirmation"
                                   className="form-control"
                                   placeholder="Confirm Password"
                                   value={formData.passwordConfirmation}
                                   onChange={handleChange}
+                                  onBlur={handleBlur}
                                   required
                                 />
                                 <label className="form-label">Confirm Password</label>
+                                {errors.passwordConfirmation && <div className="text-danger">{errors.passwordConfirmation}</div>}
+                                <span
+                                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    right: '10px',
+                                    transform: 'translateY(-50%)',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  {showConfirmPassword ? '👁️‍🗨️' : '🙈'}
+                                </span>
                               </div>
                             </div>
 
+
                             <div className="col-12">
                               <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
-                                {isSubmitting ? "Submitting..." : "Register"}
+                                {isSubmitting ? 'Submitting...' : 'Register'}
                               </button>
                             </div>
                           </form>

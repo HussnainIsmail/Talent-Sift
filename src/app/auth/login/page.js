@@ -5,12 +5,15 @@ import axios from '../../../../lib/axios';
 import '../../globals.css';
 import NavBar from '@/sections/NavBar';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 export default function page() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -23,6 +26,8 @@ export default function page() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setEmailError('');
+    setPasswordError('');
 
     try {
       const response = await axios.post('/login', { email, password });
@@ -31,14 +36,23 @@ export default function page() {
       localStorage.setItem('role', response.data.role);
       localStorage.setItem('name', response.data.name);
       localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
-      alert('Login successful!');
+
+      // Show success message with SweetAlert
+      Swal.fire({
+        title: 'Success!',
+        text: 'Login successful!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        const role = response.data.role;
+        if (role === 'admin' || role === 'super-admin' || role === 'recuriter') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/');
+        }
+      });
+
       setLoading(false);
-      const role = response.data.role;
-      if (role === 'admin' || role === 'super-admin' || role === 'recuriter') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/');
-      }
     } catch (error) {
       setLoading(false);
 
@@ -46,6 +60,12 @@ export default function page() {
         setError(error.response.data.message);
       } else {
         setError('An unexpected error occurred. Please try again.');
+      }
+
+      // Set error messages for each field if needed
+      if (error.response && error.response.data.errors) {
+        setEmailError(error.response.data.errors.email || '');
+        setPasswordError(error.response.data.errors.password || '');
       }
     }
   };
@@ -93,6 +113,7 @@ export default function page() {
                               required
                             />
                             <label htmlFor="email">Email</label>
+                            {emailError && <small style={{ color: 'red' }}>{emailError}</small>}
                           </div>
                           <div className="form-floating mb-3">
                             <input
@@ -105,6 +126,7 @@ export default function page() {
                               required
                             />
                             <label htmlFor="password">Password</label>
+                            {passwordError && <small style={{ color: 'red' }}>{passwordError}</small>}
                           </div>
                           <div className="text-end mb-3">
                             <a

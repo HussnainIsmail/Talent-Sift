@@ -29,7 +29,7 @@ export default function Page() {
         setError("User not authenticated.");
         setLoading(false);
         return;
-      } 
+    }
     //   fetch api comapnies
     const fetchCompanies = async () => {
         try {
@@ -133,7 +133,7 @@ export default function Page() {
         // Append salary information
         formDataToSend.append('minSalary', formData.minSalary);
         formDataToSend.append('maxSalary', formData.maxSalary);
-        
+
         formDataToSend.forEach((value, key) => {
             console.log(`${key}: ${value}`);
         });
@@ -141,7 +141,7 @@ export default function Page() {
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/store', formDataToSend, {
                 headers: {
-                    'Authorization': `Bearer ${token}` ,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
                 }
             });
@@ -272,47 +272,47 @@ export default function Page() {
 
 
                                                         <div className="mb-3 position-relative">
-                <label htmlFor="company" className="form-label">Company</label>
-                <div className="input-group">
-                    <input
-                        type="text"
-                        id="company"
-                        value={formData.company}
-                        onChange={handleInputChange}
-                        className="form-control"
-                        placeholder="Type or select a company..."
-                    />
-                    <button
-                        type="button"
-                        onClick={toggleDropdown}
-                        className="btn btn-outline-secondary"
-                    >
-                        ▼
-                    </button>
-                </div>
-                {dropdownVisible && (
-                    <ul
-                        className="list-group position-absolute w-100 mt-1"
-                        style={{
-                            maxHeight: '150px',
-                            overflowY: 'auto',
-                            background: '#fff',
-                            zIndex: 1000
-                        }}
-                    >
-                        {filteredCompanies.map((company) => (
-                            <li
-                                key={company.id}
-                                onClick={() => handleCompanySelect(company.company_name)}
-                                className="list-group-item list-group-item-action"
-                                style={{ cursor: 'pointer' }}
-                            >
-                                {company.company_name}
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
+                                                            <label htmlFor="company" className="form-label">Company</label>
+                                                            <div className="input-group">
+                                                                <input
+                                                                    type="text"
+                                                                    id="company"
+                                                                    value={formData.company}
+                                                                    onChange={handleInputChange}
+                                                                    className="form-control"
+                                                                    placeholder="Type or select a company..."
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={toggleDropdown}
+                                                                    className="btn btn-outline-secondary"
+                                                                >
+                                                                    ▼
+                                                                </button>
+                                                            </div>
+                                                            {dropdownVisible && (
+                                                                <ul
+                                                                    className="list-group position-absolute w-100 mt-1"
+                                                                    style={{
+                                                                        maxHeight: '150px',
+                                                                        overflowY: 'auto',
+                                                                        background: '#fff',
+                                                                        zIndex: 1000
+                                                                    }}
+                                                                >
+                                                                    {filteredCompanies.map((company) => (
+                                                                        <li
+                                                                            key={company.id}
+                                                                            onClick={() => handleCompanySelect(company.company_name)}
+                                                                            className="list-group-item list-group-item-action"
+                                                                            style={{ cursor: 'pointer' }}
+                                                                        >
+                                                                            {company.company_name}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>
 
 
                                                         {/* Job Type Checkbox */}

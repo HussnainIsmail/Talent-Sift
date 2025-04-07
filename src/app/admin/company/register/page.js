@@ -5,30 +5,72 @@ import { useRouter } from 'next/navigation';
 
 export default function Page() {
     const [formData, setFormData] = useState({
-        companyName: '',
+        company: '',
         contactNo: '',
         companyEmail: '',
         foundationDate: '',
         services: '',
         location: '',
     });
+
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [companies, setCompanies] = useState([]);
+    const [dropdownVisible, setDropdownVisible] = useState(false);
+    const [filteredCompanies, setFilteredCompanies] = useState([]);
     const router = useRouter();
 
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        setError("User not authenticated.");
-        setLoading(false);
-        return;
-      }
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+    useEffect(() => {
+        if (!token) {
+            setErrors({ general: "User not authenticated." });
+            return;
+        }
+
+        fetchCompanies();
+    }, []);
+
+    const fetchCompanies = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:8000/api/companies', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setCompanies(response.data.data);
+            setFilteredCompanies(response.data.data);
+        } catch (error) {
+            console.error('Error fetching companies:', error);
+            setErrors({ general: 'Failed to load companies.' });
+        }
+    };
+
     const handleChange = (e) => {
-        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value,
+            [e.target.name]: e.target.value,
         });
+    };
+
+    const handleInputChange = (e) => {
+        const inputValue = e.target.value;
+        setFormData({ ...formData, company: inputValue });
+
+        const filtered = companies.filter((company) =>
+            company.company_name.toLowerCase().includes(inputValue.toLowerCase())
+        );
+        setFilteredCompanies(filtered);
+        setDropdownVisible(true);
+    };
+
+    const handleCompanySelect = (companyName) => {
+        setFormData({ ...formData, company: companyName });
+        setDropdownVisible(false);
+    };
+
+    const toggleDropdown = () => {
+        setDropdownVisible(!dropdownVisible);
     };
 
     const handleSubmit = async (e) => {
@@ -43,19 +85,18 @@ export default function Page() {
         }
 
         const dataToSend = {
-            companyName: formData.companyName,
+            companyName: formData.company,
             contactNo: formData.contactNo,
             companyEmail: formData.companyEmail,
             foundationDate: formData.foundationDate,
             services: servicesArray,
             location: formData.location,
         };
-        console.log("Data to send:", dataToSend);
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/companies/store', dataToSend, {
                 headers: {
-                    'Authorization': `Bearer ${token}` 
+                    Authorization: `Bearer ${token}`
                 }
             });
             alert(response.data.message);
@@ -88,24 +129,46 @@ export default function Page() {
                                                         <h2 className="h4 text-center mb-4">Register Your Company</h2>
                                                     </div>
                                                 </div>
+
+                                                {errors.general && (
+                                                    <div className="alert alert-danger">{errors.general}</div>
+                                                )}
+
                                                 <form onSubmit={handleSubmit}>
                                                     <div className="row gy-3">
 
-                                                        
-                                                        <div className="col-12 col-md-6">
+                                                        {/* Company Name with Dropdown */}
+                                                        <div className="col-12 col-md-6 position-relative">
                                                             <div className="form-floating mb-3">
                                                                 <input
                                                                     type="text"
-                                                                    id="companyName"
-                                                                    name="companyName"
+                                                                    id="company"
+                                                                    name="company"
                                                                     className="form-control"
                                                                     placeholder="Company Name"
-                                                                    value={formData.companyName}
-                                                                    onChange={handleChange}
+                                                                    value={formData.company}
+                                                                    onChange={handleInputChange}
+                                                                    onFocus={toggleDropdown}
+                                                                    autoComplete="off"
                                                                     required
                                                                 />
-                                                                <label htmlFor="companyName">Company Name</label>
+                                                                <label htmlFor="company">Company Name</label>
                                                             </div>
+
+                                                            {dropdownVisible && filteredCompanies.length > 0 && (
+                                                                <ul className="dropdown-menu show w-100" style={{ position: 'absolute', top: '100%', zIndex: 1000 }}>
+                                                                    {filteredCompanies.map((company, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="dropdown-item"
+                                                                            onClick={() => handleCompanySelect(company.company_name)}
+                                                                            style={{ cursor: 'pointer' }}
+                                                                        >
+                                                                            {company.company_name}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
                                                         </div>
 
                                                         {/* Contact Number */}
@@ -150,15 +213,16 @@ export default function Page() {
                                                                     id="foundationDate"
                                                                     name="foundationDate"
                                                                     className="form-control"
+                                                                    placeholder="Foundation Date"
                                                                     value={formData.foundationDate}
                                                                     onChange={handleChange}
                                                                     required
                                                                 />
-                                                                <label htmlFor="foundationDate">Company Foundation Date</label>
+                                                                <label htmlFor="foundationDate">Foundation Date</label>
                                                             </div>
                                                         </div>
 
-                                                        {/* Services (comma-separated) */}
+                                                        {/* Services */}
                                                         <div className="col-12">
                                                             <div className="form-floating mb-3">
                                                                 <input
@@ -171,9 +235,9 @@ export default function Page() {
                                                                     onChange={handleChange}
                                                                     required
                                                                 />
-                                                                <label htmlFor="services">Services (separate by commas)</label>
+                                                                <label htmlFor="services">Services (Comma Separated)</label>
+                                                                {errors.services && <div className="text-danger">{errors.services}</div>}
                                                             </div>
-                                                            {errors.services && <div className="text-danger">{errors.services}</div>}
                                                         </div>
 
                                                         {/* Location */}
@@ -184,12 +248,12 @@ export default function Page() {
                                                                     id="location"
                                                                     name="location"
                                                                     className="form-control"
-                                                                    placeholder="Company Location"
+                                                                    placeholder="Location"
                                                                     value={formData.location}
                                                                     onChange={handleChange}
                                                                     required
                                                                 />
-                                                                <label htmlFor="location">Company Location</label>
+                                                                <label htmlFor="location">Location</label>
                                                             </div>
                                                         </div>
 
@@ -199,8 +263,10 @@ export default function Page() {
                                                                 {isSubmitting ? 'Registering...' : 'Register Company'}
                                                             </button>
                                                         </div>
+
                                                     </div>
                                                 </form>
+
                                             </div>
                                         </div>
                                     </div>

@@ -1,15 +1,24 @@
 "use client";
 import { IoNotificationsOutline } from "react-icons/io5";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle';
 import '../../../app/globals.css';
 
-
 export default function NavBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Check if the user is logged in by checking for the token in localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const handleLogout = () => {
     try {
@@ -20,7 +29,7 @@ export default function NavBar() {
         console.log('Token removed');
       }
       if (role) {
-        localStorage.removeItem('role', 'name', 'token');
+        localStorage.removeItem('role');
         console.log('Role removed');
       }
 
@@ -31,16 +40,10 @@ export default function NavBar() {
     }
   };
 
-
-
-
-
-  // Handle toggling the mobile menu
   const handleToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Close the menu when clicking outside
   const handleClickOutside = (event) => {
     if (!event.target.closest('.navbar') && isMobileMenuOpen) {
       setIsMobileMenuOpen(false);
@@ -67,62 +70,68 @@ export default function NavBar() {
             </a>
             <div className="d-flex flex-column flex-lg-row align-items-end align-items-center gap-2 d-sm-flex d-md-none">
               <div className="d-flex align-items-center gap-3">
-                {/* Profile Dropdown */}
-                <div className="dropdown">
-                  <a
-                    className="profile-icon"
-                    href="#"
-                    id="profileDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <img
-                      src="/assets/userimg.png"
-                      alt="Profile"
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        border: "0px solid white",
-                        objectFit: "cover"
-                      }}
-                    />
-                    {/* Status Dot for Active/Inactive */}
-                    <span
-                      className="status-dot"
-                      style={{
-                        position: "absolute",
-                        top: "0",
-                        right: "0",
-                        width: "10px",
-                        height: "10px",
-                        borderRadius: "50%",
-                        backgroundColor: "green"
-                      }}
-                    ></span>
-                  </a>
-                  {/* Use dropdown-menu-end to align the dropdown to the left */}
-
-                </div>
-                {/* Notification Icon */}
-                <div className="position-relative">
-                  <button className="btn btn-link text-white p-0" aria-label="Settings">
-                    <IoNotificationsOutline size={20} />
-                  </button>
-                  <span
-                    className="notification-count"
-                    style={{
-                      position: "absolute",
-                      top: "-5px",
-                      right: "-5px",
-                      color: "white",
-                      fontSize: "0.7rem",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    30
-                  </span>
-                </div>
+                {isLoggedIn ? (
+                  <>
+                    {/* Profile Dropdown */}
+                    <div className="dropdown">
+                      <a
+                        className="profile-icon"
+                        href="#"
+                        id="profileDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <img
+                          src="/assets/userimg.png"
+                          alt="Profile"
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            borderRadius: "50%",
+                            border: "0px solid white",
+                            objectFit: "cover"
+                          }}
+                        />
+                        <span
+                          className="status-dot"
+                          style={{
+                            position: "absolute",
+                            top: "0",
+                            right: "0",
+                            width: "10px",
+                            height: "10px",
+                            borderRadius: "50%",
+                            backgroundColor: "green"
+                          }}
+                        ></span>
+                      </a>
+                    </div>
+                    {/* Notification Icon */}
+                    <div className="position-relative">
+                      <button className="btn btn-link text-white p-0" aria-label="Settings">
+                        <IoNotificationsOutline size={20} />
+                      </button>
+                      <span
+                        className="notification-count"
+                        style={{
+                          position: "absolute",
+                          top: "-5px",
+                          right: "-5px",
+                          color: "white",
+                          fontSize: "0.7rem",
+                          fontWeight: "bold"
+                        }}
+                      >
+                        30
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    {/* Login and Signup Links */}
+                    <a className="text-white" href="/auth/login">Login</a> | <a className="text-white" href="/auth/signup">Sign Up</a>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -147,24 +156,6 @@ export default function NavBar() {
                   Home
                 </a>
               </li>
-              {/* <li className="nav-item">
-                <a
-                  className={`nav-link px-3 text-white ${activeLink === "messages" ? "active-link" : ""}`}
-                  href="#"
-                  onClick={() => handleLinkClick("messages")}
-                >
-                  Messages
-                </a>
-              </li> */}
-              {/* <li className="nav-item">
-                <a
-                  className={`nav-link px-3 text-white ${activeLink === "hiring" ? "active-link" : ""}`}
-                  href="#"
-                  onClick={() => handleLinkClick("hiring")}
-                >
-                  Hiring
-                </a>
-              </li> */}
               <li className="nav-item">
                 <a
                   className={`nav-link px-3 text-white ${activeLink === "about-us" ? "active-link" : ""}`}
@@ -174,7 +165,6 @@ export default function NavBar() {
                   About Us
                 </a>
               </li>
-
               <li className="nav-item">
                 <a
                   className={`nav-link px-3 text-white ${activeLink === "faq" ? "active-link" : ""}`}
@@ -187,62 +177,64 @@ export default function NavBar() {
             </ul>
             <div className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 d-none d-md-flex">
               <div className="d-flex align-items-center gap-3">
-                {/* Profile Dropdown for Larger Screens */}
                 <div className="position-relative">
-                  <li>
-                    <a className="text-white" href="/admin/dashboard">Dashbaord</a>
-                  </li>
+                  {/* <li>
+                    <a className="text-white" href="/admin/dashboard">Dashboard</a>
+                  </li> */}
                 </div>
-                <div className="dropdown">
-                  <a
-                    className="profile-icon"
-                    href="#"
-                    id="profileDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <img
-                      src="/assets/userimg.png"
-                      alt="Profile"
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        border: "0px solid white",
-                        objectFit: "cover"
-                      }}
-                    />
-                    {/* Status Dot for Active/Inactive */}
-                    <span
-                      className="status-dot"
-                      style={{
-                        position: "absolute",
-                        top: "0",
-                        right: "0",
-                        width: "10px",
-                        height: "10px",
-                        borderRadius: "50%",
-                        backgroundColor: "green"
-                      }}
-                    ></span>
-                  </a>
-                  {/* Use dropdown-menu-end to align the dropdown to the left */}
-                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                    <li>
-                      <a className="dropdown-item" href="/user-profile">User Profile</a>
-                    </li>
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        href="#"
-                        onClick={handleLogout}
-                      >
-                        Log Out
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                {/* Notification Icon */}
+                {isLoggedIn ? (
+                  <div className="dropdown">
+                    <a
+                      className="profile-icon"
+                      href="#"
+                      id="profileDropdown"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <img
+                        src="/assets/userimg.png"
+                        alt="Profile"
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                          border: "0px solid white",
+                          objectFit: "cover"
+                        }}
+                      />
+                      <span
+                        className="status-dot"
+                        style={{
+                          position: "absolute",
+                          top: "0",
+                          right: "0",
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          backgroundColor: "green"
+                        }}
+                      ></span>
+                    </a>
+                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                      <li>
+                        <a className="dropdown-item" href="/user-profile">User Profile</a>
+                      </li>
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          href="#"
+                          onClick={handleLogout}
+                        >
+                          Log Out
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  <div>
+                    <a className="text-white" href="/auth/login">Login</a> | <a className="text-white" href="/auth/signup">Sign Up</a>
+                  </div>
+                )}
                 <div className="position-relative">
                   <button className="btn btn-link text-white p-0" aria-label="Settings">
                     <IoNotificationsOutline size={20} />
