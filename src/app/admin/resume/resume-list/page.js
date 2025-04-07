@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 
@@ -18,12 +19,19 @@ export default function JobApplicationsPage() {
             setError('Token not found. Please log in again.');
             return;
         }
-
+    
         if (!id) {
-            setError('Job ID not found.');
+            Swal.fire({
+                icon: 'info',
+                title: 'No Job Posted',
+                text: 'Post a job first to view applications!',
+                confirmButtonText: 'Go to Post Job',
+            }).then(() => {
+                router.push('/admin/jobs/create-job');
+            });
             return;
         }
-
+    
         axios.get(`http://127.0.0.1:8000/api/jobs/${id}/applications`, {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -40,6 +48,7 @@ export default function JobApplicationsPage() {
             setLoading(false);
         });
     }, [id]);
+    
 
     const handleReject = (applicationId) => {
         alert(`Reject Job Application with ID: ${applicationId}`);
