@@ -16,8 +16,7 @@ export default function Page() {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [companies, setCompanies] = useState([]);
-    const [dropdownVisible, setDropdownVisible] = useState(false);
-    const [filteredCompanies, setFilteredCompanies] = useState([]);
+    const [companyName, setCompanyName] = useState('');  
     const router = useRouter();
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -38,39 +37,24 @@ export default function Page() {
                     Authorization: `Bearer ${token}`
                 }
             });
-            setCompanies(response.data.data);
-            setFilteredCompanies(response.data.data);
+    
+    
+            const companyName = response.data.data.company_name;
+            console.log('Company Name:', companyName); // To see the company name in the console
+            setCompanyName(companyName); 
+    
         } catch (error) {
             console.error('Error fetching companies:', error);
             setErrors({ general: 'Failed to load companies.' });
         }
     };
+    
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
-    };
-
-    const handleInputChange = (e) => {
-        const inputValue = e.target.value;
-        setFormData({ ...formData, company: inputValue });
-
-        const filtered = companies.filter((company) =>
-            company.company_name.toLowerCase().includes(inputValue.toLowerCase())
-        );
-        setFilteredCompanies(filtered);
-        setDropdownVisible(true);
-    };
-
-    const handleCompanySelect = (companyName) => {
-        setFormData({ ...formData, company: companyName });
-        setDropdownVisible(false);
-    };
-
-    const toggleDropdown = () => {
-        setDropdownVisible(!dropdownVisible);
     };
 
     const handleSubmit = async (e) => {
@@ -137,38 +121,20 @@ export default function Page() {
                                                 <form onSubmit={handleSubmit}>
                                                     <div className="row gy-3">
 
-                                                        {/* Company Name with Dropdown */}
-                                                        <div className="col-12 col-md-6 position-relative">
+                                                        {/* Company Name (No Dropdown) */}
+                                                        <div className="col-12 col-md-6">
                                                             <div className="form-floating mb-3">
                                                                 <input
                                                                     type="text"
                                                                     id="company"
                                                                     name="company"
                                                                     className="form-control"
-                                                                    placeholder="Company Name"
-                                                                    value={formData.company}
-                                                                    onChange={handleInputChange}
-                                                                    onFocus={toggleDropdown}
-                                                                    autoComplete="off"
+                                                                    placeholder="Enter company name"
+                                                                    value={companyName}                                                                      onChange={handleChange}
                                                                     required
                                                                 />
                                                                 <label htmlFor="company">Company Name</label>
                                                             </div>
-
-                                                            {dropdownVisible && filteredCompanies.length > 0 && (
-                                                                <ul className="dropdown-menu show w-100" style={{ position: 'absolute', top: '100%', zIndex: 1000 }}>
-                                                                    {filteredCompanies.map((company, index) => (
-                                                                        <li
-                                                                            key={index}
-                                                                            className="dropdown-item"
-                                                                            onClick={() => handleCompanySelect(company.company_name)}
-                                                                            style={{ cursor: 'pointer' }}
-                                                                        >
-                                                                            {company.company_name}
-                                                                        </li>
-                                                                    ))}
-                                                                </ul>
-                                                            )}
                                                         </div>
 
                                                         {/* Contact Number */}
