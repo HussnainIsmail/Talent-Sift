@@ -47,11 +47,27 @@ export default function JobApplicationsPage() {
             setError('Failed to fetch job applications.');
             setLoading(false);
         });
-    }, [id]);
+    }, [id, router]);
     
-
     const handleReject = (applicationId) => {
-        alert(`Reject Job Application with ID: ${applicationId}`);
+        Swal.fire({
+            title: 'Reject Application?',
+            text: "Are you sure you want to reject this application?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, reject it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Add your rejection logic here
+                Swal.fire(
+                    'Rejected!',
+                    'The application has been rejected.',
+                    'success'
+                );
+            }
+        });
     };
 
     const handleSendEmail = (applicationId) => {
@@ -59,7 +75,7 @@ export default function JobApplicationsPage() {
     };
 
     const handleDownload = (filename) => {
-        const url = `http://127.0.0.1:8000/storage/${filename}`;
+        const url = `http://127.0.0.1:8000/storage/cvs/${filename}`;
         window.location.href = url;
     };
 
@@ -90,7 +106,7 @@ export default function JobApplicationsPage() {
                                         <td className="align-middle">{application.last_name}</td>
                                         <td className="align-middle">{application.email}</td>
                                         <td className="align-middle">{application.contact_no}</td>
-                                        <td className="align-middle">
+                                       <td className="align-middle">
                                             {application.cv_path && (
                                                 <button
                                                     className="btn btn-primary btn-sm"

@@ -67,7 +67,7 @@ export default function CompanyList() {
                                                 <th>Email</th>
                                                 <th>Foundation Date</th>
                                                 <th>Location</th>
-                                                <th>Actions</th>
+                                                {/* <th>Actions</th> */}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -79,14 +79,14 @@ export default function CompanyList() {
                                                     <td>{company.company_email}</td>
                                                     <td>{company.company_foundation_date}</td>
                                                     <td>{company.company_location}</td>
-                                                    <td>
+                                                    {/* <td>
                                                         <button
                                                             className="btn btn-sm btn-primary me-2"
                                                             onClick={() => router.push(`/company/${company.id}`)}
                                                         >
                                                             View
                                                         </button>
-                                                    </td>
+                                                    </td> */}
                                                 </tr>
                                             ))}
                                         </tbody>

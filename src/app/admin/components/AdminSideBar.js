@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,17 +37,17 @@ export default function AdminSideBar() {
   const dropdownLinks = {
     Users: [
       { label: "User List", path: "/admin/users/user-list" },
-      { label: "Edit User", path: "/admin/users/edit-user" },
+      { label: "Create User", path: "/admin/users/create-user" },
     ],
     Roles: [
       { label: "Roles List", path: "/admin/roles/role-list" },
       { label: "Create Role", path: "/admin/roles/create-role" },
-      { label: "Edit Role", path: "/admin/roles/edit-role" },
+      // { label: "Edit Role", path: "/admin/roles/edit-role" },
     ],
     Permissions: [
       { label: "Permission List", path: "/admin/permissions/permission-list" },
       { label: "Create Permission", path: "/admin/permissions/create-permission" },
-      { label: "Edit Permission", path: "/admin/permissions/edit-permission" },
+      // { label: "Edit Permission", path: "/admin/permissions/edit-permission" },
     ],
     Company: [
       { label: "Register", path: "/admin/company/register" },
@@ -58,7 +59,6 @@ export default function AdminSideBar() {
     Jobs: [
       { label: "Job List", path: "/admin/jobs/job-list" },
       { label: "Create Job", path: "/admin/jobs/create-job" },
-      // { label: "Edit Job", path: "/admin/jobs/edit-job" },
     ],
   };
 
@@ -117,15 +117,11 @@ export default function AdminSideBar() {
           </li>
         ))}
         {Object.keys(dropdownLinks).map((dropdown) => {
-          if (role === "admin" || role === "super-admin") {
-            if (dropdown === "Jobs") {
-              return null;
-            }
-          }
-          if (role === "recuriter" && (dropdown === "Roles" || dropdown === "Permissions")) {
+          
+          if (role === "recuriter" && (dropdown === "Roles" || dropdown === "Permissions" || dropdown === "Users")) {
             return null;
           }
-          if (role === "super-admin" && (dropdown === "Company" || dropdown === "Resume")) {
+          if (role === "admin" && (dropdown === "Company" || dropdown === "Resume" || dropdown === "Jobs")) {
             return null;
           }
           const DropdownIcon = dropdownIcons[dropdown];
@@ -152,16 +148,13 @@ export default function AdminSideBar() {
                       if (label === "User List" && !permissions.includes("show-users")) {
                         return false;
                       }
-                      if (label === "Edit User" && !permissions.includes("edit-user")) {
-                        return false;
-                      }
                       if (label === "Create Role" && !permissions.includes("create-role")) {
                         return false;
                       }
                       if (label === "Edit Role" && !permissions.includes("edit-role")) {
                         return false;
                       }
-                        if (label === "Roles List" && !permissions.includes("show-roles")) {
+                      if (label === "Roles List" && !permissions.includes("show-roles")) {
                         return false;
                       }
                       if (label === "Create Permission" && !permissions.includes("create-permission")) {

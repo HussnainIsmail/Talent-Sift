@@ -20,12 +20,13 @@ export default function UserList() {
 
             const response = await axios.get('http://127.0.0.1:8000/api/users', {
                 headers: {
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 }
             });
+            // console.log('Response data:', response.data);
 
-            setUsers(response.data.users); 
-            
+            setUsers(response.data.users);
+
             setError('');
         } catch (error) {
             setError('Failed to fetch users.');
@@ -35,10 +36,10 @@ export default function UserList() {
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this user?')) {
             try {
-                const token = localStorage.getItem('token'); 
+                const token = localStorage.getItem('token');
                 const response = await axios.delete(`http://127.0.0.1:8000/api/users/${id}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}` 
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 setUsers(users.filter((user) => user.id !== id));
