@@ -40,20 +40,20 @@ export default function Header() {
       <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
         <h4>{activePath}</h4>
         <div className="d-flex align-items-center">
-          <input
+          {/* <input
             type="text"
             className="form-control d-inline w-50 me-3"
             placeholder="Search..."
           />
           <FaSun className="me-3" />
-          <FaBell className="me-3" />
+          <FaBell className="me-3" /> */}
           <div className="d-flex align-items-center position-relative">
             <img
               src="https://via.placeholder.com/40"
               alt="Profile"
               className="rounded-circle me-2"
               style={{ width: "40px", height: "40px", cursor: "pointer" }}
-              onClick={() => setShowDropdown((prev) => !prev)} // Toggle dropdown
+              onClick={() => setShowDropdown((prev) => !prev)} 
             />
             <span>{userName}</span>
             {showDropdown && (

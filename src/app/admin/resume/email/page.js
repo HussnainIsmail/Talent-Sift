@@ -1,20 +1,20 @@
 'use client';
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
 export default function IntervieEmail() {
     const searchParams = useSearchParams();
-    const applicationId = searchParams.get('applicationId'); 
+    const applicationId = searchParams.get('applicationId');
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [interviewType, setInterviewType] = useState('Online');
-    const [jobApplication, setJobApplication] = useState(null); 
-    const [company, setCompany] = useState(null); 
-    const [job, setJob] = useState(null); 
+    const [jobApplication, setJobApplication] = useState(null);
+    const [company, setCompany] = useState(null);
+    const [job, setJob] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -33,20 +33,20 @@ export default function IntervieEmail() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) {
             alert('Token not found. Please log in again.');
             return;
         }
-    
+
         if (!applicationId) {
             alert('Application ID is missing.');
             return;
         }
-    
+
         const formattedDateTime = formatDateTime(selectedDate);
-    
+
         axios.post(
             `http://127.0.0.1:8000/api/send/interview-email/${applicationId}`,
             {
@@ -59,16 +59,28 @@ export default function IntervieEmail() {
                 },
             }
         )
-        .then((response) => {
-            if (response.data.message) {
-                alert(response.data.message);
-            }
-        })
-        .catch((error) => {
-            alert(`Error: ${error.response?.data?.message || error.message}`);
-        });
+            .then((response) => {
+                console.log('Success Response:', response); // Log entire response
+                console.log('Response Data:', response.data); // Log response data
+
+                if (response.data.message) {
+                    alert(response.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log('Error:', error); // Log entire error object
+                console.log('Error Response:', error.response); // Log error response if exists
+
+                if (error.response) {
+                    console.log('Error Data:', error.response.data); // Log error data
+                    console.log('Error Status:', error.response.status); // Log status code
+                    console.log('Error Headers:', error.response.headers); // Log headers
+                }
+
+                alert(`Error: ${error.response?.data?.message || error.message}`);
+            });
     };
-    
+
 
     useEffect(() => {
         if (applicationId) {
@@ -83,22 +95,22 @@ export default function IntervieEmail() {
                     Authorization: `Bearer ${token}`,
                 },
             })
-            .then((response) => {
-                const jobApplicationData = response.data.job_application;
-                const companyData = response.data.company;
-                const jobData = response.data.job;
+                .then((response) => {
+                    const jobApplicationData = response.data.job_application;
+                    const companyData = response.data.company;
+                    const jobData = response.data.job;
 
-                console.log("Job data from API:", jobData);
+                    console.log("Job data from API:", jobData);
 
-                setJobApplication(jobApplicationData);
-                setCompany(companyData);
-                setJob(jobData);
-                setLoading(false);
-            })
-            .catch((error) => {
-                setError(error.response?.data?.message || error.message);
-                setLoading(false);
-            });
+                    setJobApplication(jobApplicationData);
+                    setCompany(companyData);
+                    setJob(jobData);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    setError(error.response?.data?.message || error.message);
+                    setLoading(false);
+                });
         }
     }, [applicationId]);
 
@@ -182,7 +194,7 @@ export default function IntervieEmail() {
 
                     <div className="text-center mb-4">
                         <strong>Contact Number:</strong> {jobApplication?.contact_no} (For any inquiries or rescheduling)
-                    </div> 
+                    </div>
 
                     <div className="text-center">
                         <button type="submit" className="btn btn-primary px-4 py-2">Confirm Interview</button>

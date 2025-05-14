@@ -93,10 +93,10 @@ export default function page() {
                         <div className="text-center mb-4">
                           <a href="#!" className="text-decoration-none text-black">
                             <img
-                              src="/assets/img/bsb-logo.svg"
+                              src="/assets/brandlogo.jpg"
                               alt="TalentSift Logo"
-                              width="175"
-                              height="57"
+                              width="80"
+                              height="50"
                             />
                           </a>
                         </div>
@@ -130,7 +130,7 @@ export default function page() {
                           </div>
                           <div className="text-end mb-3">
                             <a
-                              href="/forgot-password"
+                              href="/auth/forgot-password"
                               className="link-primary text-decoration-none"
                             >
                               Forgot Password?

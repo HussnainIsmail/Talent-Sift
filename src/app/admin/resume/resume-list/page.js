@@ -123,12 +123,12 @@ export default function JobApplicationsPage() {
                                             >
                                                 Send Email
                                             </button>
-                                            <button
+                                            {/* <button
                                                 className="btn btn-danger btn-sm"
                                                 onClick={() => handleReject(application.id)}
                                             >
                                                 Reject
-                                            </button>
+                                            </button> */}
                                         </td>
                                     </tr>
                                 ))

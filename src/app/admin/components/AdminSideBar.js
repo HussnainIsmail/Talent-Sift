@@ -53,9 +53,9 @@ export default function AdminSideBar() {
       { label: "Register", path: "/admin/company/register" },
       { label: "Company List", path: "/admin/company/company-list" },
     ],
-    Resume: [
-      { label: "Resume List", path: "/admin/resume/resume-list" },
-    ],
+    // Resume: [
+    //   { label: "Resume List", path: "/admin/resume/resume-list" },
+    // ],
     Jobs: [
       { label: "Job List", path: "/admin/jobs/job-list" },
       { label: "Create Job", path: "/admin/jobs/create-job" },
@@ -95,7 +95,7 @@ export default function AdminSideBar() {
       <div className="d-flex justify-content-center align-items-center pt-3">
         <Link href="/" className="text-decoration-none">
           <img
-            src="https://via.placeholder.com/40"
+            src="/assets/brandlogo.jpg"
             alt="Logo"
             style={{ width: "60px", height: "40px" }}
           />

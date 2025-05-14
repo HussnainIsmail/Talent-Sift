@@ -159,7 +159,7 @@ export default function RegisterPage() {
                       <div className="card-body p-3 p-md-4 p-xl-5">
                         <div className="text-center mb-4">
                           <a href="#" className="text-decoration-none">
-                            <img src="/assets/img/bsb-logo.svg" alt="Logo" width="175" height="57" />
+                            <img src="/assets/brandlogo.jpg" alt="Logo" width="70" height="45" />
                           </a>
                         </div>
 
