@@ -83,23 +83,36 @@ export default function UserProfile() {
                 </div>
 
                 <div className="d-flex gap-2">
-  <button className="btn btn-outline-primary w-50">Open to</button>
-  <Link
-    href={{
-      pathname: '/edit-profile',
-      query: { id: user?.id },
-    }}
-    className="w-50"
-  >
-    <button
-      className="btn btn-outline-primary w-100"
-      disabled={!user?.id}
-    >
-      Update profile
-    </button>
-  </Link>
-  <button className="btn btn-outline-primary w-50">Enhance profile</button>
-</div>
+                  <button className="btn btn-outline-primary w-50">Open to</button>
+                  <Link
+                    href={{
+                      pathname: '/edit-profile',
+                      query: { id: user?.id },
+                    }}
+                    className="w-50"
+                  >
+                    <button
+                      className="btn btn-outline-primary w-100"
+                      disabled={!user?.id}
+                    >
+                      Update profile
+                    </button>
+                  </Link>
+                  <Link
+                    href={{
+                      pathname: '/enhance-profile',
+                      query: { id: user?.id },
+                    }}
+                    className="w-50"
+                  >
+                    <button
+                      className="btn btn-outline-primary w-100"
+                      disabled={!user?.id}
+                    >
+                      Enhance Profile
+                    </button>
+                  </Link>
+                </div>
 
 
 

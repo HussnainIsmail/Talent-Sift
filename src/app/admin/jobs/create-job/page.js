@@ -15,7 +15,9 @@ export default function JobPostForm() {
         minSalary: '',
         maxSalary: '',
         jobLevel: [],
-        company: ''
+        company: '',
+        skills: '', // New field for skills
+        experience: '' // New field for experience
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +32,7 @@ export default function JobPostForm() {
             setLoading(false);
             return;
         }
-        
+
         const fetchCompany = async () => {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/api/companies/create', {
@@ -98,39 +100,41 @@ export default function JobPostForm() {
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         if (!formData.jobtitle) newErrors.jobtitle = "Job title is required";
         if (!formData.email) newErrors.email = "Email is required";
         if (!formData.description) newErrors.description = "Description is required";
         if (formData.jobType.length === 0) newErrors.jobType = "At least one job type is required";
         if (formData.workLocation.length === 0) newErrors.workLocation = "Work location is required";
         if (formData.jobLevel.length === 0) newErrors.jobLevel = "Job level is required";
-        
-        if (formData.minSalary && formData.maxSalary && 
+
+        if (formData.minSalary && formData.maxSalary &&
             parseInt(formData.minSalary) > parseInt(formData.maxSalary)) {
             newErrors.salary = "Minimum salary cannot be greater than maximum salary";
         }
-        
+        if (!formData.skills) newErrors.skills = "Skills are required";
+        if (!formData.experience) newErrors.experience = "Experience is required";
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) {
             return;
         }
-        
+
         setIsSubmitting(true);
         const token = localStorage.getItem('token');
-        
+
         const formDataToSend = new FormData();
         formDataToSend.append('jobtitle', formData.jobtitle);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('description', formData.description);
         formDataToSend.append('company', formData.company);
-        
+
         formData.jobType.forEach(job => formDataToSend.append('jobType[]', job));
         formData.workLocation.forEach(location => formDataToSend.append('workLocation[]', location));
         formData.jobLevel.forEach(level => formDataToSend.append('jobLevel[]', level));
@@ -142,6 +146,9 @@ export default function JobPostForm() {
         formDataToSend.append('subscribe', formData.subscribe);
         formDataToSend.append('minSalary', formData.minSalary);
         formDataToSend.append('maxSalary', formData.maxSalary);
+        formDataToSend.append('skills', formData.skills);
+        formDataToSend.append('experience', formData.experience);
+
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/store', formDataToSend, {
@@ -208,7 +215,51 @@ export default function JobPostForm() {
                                                                 )}
                                                             </div>
                                                         </div>
+                                                        {/* Skills Input */}
+                                                        <div className="col-12 col-md-6">
+                                                            <div className="form-floating mb-3">
+                                                                <input
+                                                                    type="text"
+                                                                    id="skills"
+                                                                    name="skills"
+                                                                    className={`form-control ${errors.skills ? 'is-invalid' : ''}`}
+                                                                    placeholder="e.g. JavaScript, React, Node.js"
+                                                                    value={formData.skills}
+                                                                    onChange={handleChange}
+                                                                    required
+                                                                />
+                                                                <label htmlFor="skills">Skills (comma separated)</label>
+                                                                {errors.skills && (
+                                                                    <div className="invalid-feedback">{errors.skills}</div>
+                                                                )}
+                                                                <div className="form-text">Enter multiple skills separated by commas</div>
+                                                            </div>
+                                                        </div>
 
+                                                        {/* Experience Input */}
+                                                        <div className="col-12 col-md-6">
+                                                            <div className="form-floating mb-3">
+                                                                <select
+                                                                    id="experience"
+                                                                    name="experience"
+                                                                    className={`form-control ${errors.experience ? 'is-invalid' : ''}`}
+                                                                    value={formData.experience}
+                                                                    onChange={handleChange}
+                                                                    required
+                                                                >
+                                                                    <option value="">Select experience level</option>
+                                                                    <option value="0-1 years">0-1 years</option>
+                                                                    <option value="1-3 years">1-3 years</option>
+                                                                    <option value="3-5 years">3-5 years</option>
+                                                                    <option value="5-10 years">5-10 years</option>
+                                                                    <option value="10+ years">10+ years</option>
+                                                                </select>
+                                                                <label htmlFor="experience">Required Experience</label>
+                                                                {errors.experience && (
+                                                                    <div className="invalid-feedback">{errors.experience}</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                         {/* Email Input */}
                                                         <div className="col-12 col-md-6">
                                                             <div className="form-floating mb-3">
